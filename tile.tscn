@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://bk8d7gst4jvq"]
+
+[ext_resource type="Script" uid="uid://dr4tni6pue5r3" path="res://tile.gd" id="1_n3f48"]
+
+[node name="Tile" type="Area2D"]
+script = ExtResource("1_n3f48")
+metadata/_edit_group_ = true
+metadata/sideColours = {}
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PackedVector2Array(360, 104, 456, 104, 456, 192, 360, 192)
+
+[node name="square" type="Polygon2D" parent="."]
+position = Vector2(652, 312)
+polygon = PackedVector2Array(-292, -208, -292, -120, -196, -120, -196, -208)
