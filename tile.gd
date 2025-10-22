@@ -7,8 +7,6 @@ extends Area2D
 	"west" = ["yellow"]
 }
 
-#func _ready():
-
 func _ready():
 	var northColour = sideColours["north"] 
 	var eastColour = sideColours["east"]
