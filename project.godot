@@ -11,11 +11,22 @@ config_version=5
 [application]
 
 config/name="Scaling the Tiles"
-run/main_scene="uid://bk8d7gst4jvq"
+run/main_scene="uid://cnms3fb0kmg37"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://images/icon.svg"
+
+[autoload]
+
+G="*res://scripts/g.gd"
+
+[display]
+
+window/size/viewport_width=1024
+window/size/viewport_height=1024
+window/stretch/mode="canvas_items"
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.129558, 0.129559, 0.129558, 1)
