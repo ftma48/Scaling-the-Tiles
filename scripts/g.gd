@@ -2,20 +2,13 @@ extends Node
 
 var cells = []
 var tiles = []
-
-enum DIFFICULTY {
-	EASY,
-	MEDIUM,
-	HARD
-}
-const DIFFICULTY_VALUES = {
-	DIFFICULTY.EASY: 3,
-	DIFFICULTY.MEDIUM: 4,
-	DIFFICULTY.HARD: 5
-}
-
-var chosen_difficulty = DIFFICULTY.EASY
+var dragging = false #global dragging, to avoid dragging multiple pieces
 
 var grid_size = Vector2i(
 	3,3
 )
+
+func find_cell(index: int):
+	for cell in cells:
+		if cell.index == index:
+			return cell

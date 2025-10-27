@@ -11,7 +11,7 @@ gradient = SubResource("Gradient_6ngbm")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0s7o3"]
 
-[node name="Cell" type="Area2D"]
+[node name="Cell" type="Area2D" groups=["cell"]]
 script = ExtResource("1_upbjj")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

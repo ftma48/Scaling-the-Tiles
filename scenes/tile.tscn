@@ -11,3 +11,5 @@ script = ExtResource("1_3dk36")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_ywnoi")
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]

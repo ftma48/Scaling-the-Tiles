@@ -1,6 +1,7 @@
 extends Area2D
 
 var index = -1
+var occupied = false #to check whether a tile is occupying the cell
 
 @onready var sprite2d: Sprite2D  = $Sprite2D
 @onready var collishape: CollisionShape2D = $CollisionShape2D
@@ -17,3 +18,12 @@ func init_cell(
 	
 	#update shape of collider
 	collishape.shape.set("size", tile_size)
+
+func is_free():
+	return not occupied
+
+func occupy():
+	occupied = true
+
+func unoccupy():
+	occupied = false
