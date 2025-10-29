@@ -15,7 +15,7 @@ func _ready():
 
 func init_game():
 	generate_tiles()
-	draw_cells()
+	#draw_cells()
 
 #create grid of size grid_size and fill it with cells
 func draw_cells():
@@ -53,8 +53,8 @@ func generate_tiles():
 			randomize()
 			if index < (G.grid_size.x * G.grid_size.y) / 2:
 				pos = Vector2(
-					randi_range(100, 200),
-					randi_range(400, 700)
+					randi_range(100, 400),
+					randi_range(200, 800)
 				)
 			else:
 				pos = Vector2(

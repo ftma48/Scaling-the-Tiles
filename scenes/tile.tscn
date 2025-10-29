@@ -1,15 +1,154 @@
-[gd_scene load_steps=3 format=3 uid="uid://c2us4vwlwrh4d"]
+[gd_scene load_steps=6 format=3 uid="uid://c2us4vwlwrh4d"]
 
 [ext_resource type="Script" uid="uid://dr4tni6pue5r3" path="res://scripts/tile.gd" id="1_3dk36"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ywnoi"]
 
-[node name="Tile" type="Area2D"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3dk36"]
+size = Vector2(4, 4)
+
+[sub_resource type="Gradient" id="Gradient_3dk36"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0.705882, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ywnoi"]
+gradient = SubResource("Gradient_3dk36")
+width = 20
+height = 20
+fill_to = Vector2(0, 0)
+
+[node name="Tile" type="Area2D" groups=["tiles"]]
 script = ExtResource("1_3dk36")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_ywnoi")
+disabled = true
+
+[node name="Button" type="Button" parent="."]
+self_modulate = Color(1, 1, 1, 0)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="edge1" type="Area2D" parent="."]
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="edge1"]
+shape = SubResource("RectangleShape2D_3dk36")
+
+[node name="Sprite2D" type="Sprite2D" parent="edge1"]
+texture = SubResource("GradientTexture2D_ywnoi")
+
+[node name="ColorRect" type="ColorRect" parent="edge1"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.88044, 0.130263, 0.137772, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="edge2" type="Area2D" parent="."]
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="edge2"]
+shape = SubResource("RectangleShape2D_3dk36")
+
+[node name="ColorRect" type="ColorRect" parent="edge2"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.88044, 0.130263, 0.137772, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="edge2"]
+texture = SubResource("GradientTexture2D_ywnoi")
+
+[node name="edge3" type="Area2D" parent="."]
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="edge3"]
+shape = SubResource("RectangleShape2D_3dk36")
+
+[node name="ColorRect" type="ColorRect" parent="edge3"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.88044, 0.130263, 0.137772, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="edge3"]
+texture = SubResource("GradientTexture2D_ywnoi")
+
+[node name="edge4" type="Area2D" parent="."]
+position = Vector2(-6, -2)
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="edge4"]
+shape = SubResource("RectangleShape2D_3dk36")
+
+[node name="ColorRect" type="ColorRect" parent="edge4"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -2.0
+offset_top = -2.0
+offset_right = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.88044, 0.130263, 0.137772, 1)
+metadata/_edit_use_anchors_ = true
+
+[node name="Sprite2D" type="Sprite2D" parent="edge4"]
+texture = SubResource("GradientTexture2D_ywnoi")
 
 [connection signal="input_event" from="." to="." method="_on_input_event"]
+[connection signal="button_down" from="Button" to="." method="_on_button_button_down"]
+[connection signal="button_up" from="Button" to="." method="_on_button_button_up"]
+[connection signal="area_entered" from="edge1" to="." method="_on_edge_area_entered"]
+[connection signal="area_exited" from="edge1" to="." method="_on_edge_area_exited"]
+[connection signal="area_entered" from="edge2" to="." method="_on_edge_area_entered"]
+[connection signal="area_exited" from="edge2" to="." method="_on_edge_area_exited"]
+[connection signal="area_entered" from="edge3" to="." method="_on_edge_area_entered"]
+[connection signal="area_exited" from="edge3" to="." method="_on_edge_area_exited"]
+[connection signal="area_entered" from="edge4" to="." method="_on_edge_area_entered"]
+[connection signal="area_exited" from="edge4" to="." method="_on_edge_area_exited"]

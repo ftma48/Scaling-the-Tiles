@@ -6,8 +6,14 @@ var cell_index = -1
 var dragging = false
 var drag_offset = Vector2.ZERO
 
+var connect = null
+
 @onready var sprite2d: Sprite2D  = $Sprite2D
 @onready var collishape: CollisionShape2D = $CollisionShape2D
+@onready var button: Button = $Button
+@onready var edge1: Area2D = $edge1
+@onready var edge1colli: CollisionShape2D = $edge1/CollisionShape2D
+
 
 func init_tile(
 	_index: int,
@@ -19,6 +25,25 @@ func init_tile(
 	sprite2d.texture = texture
 	position = pos
 	collishape.shape.set("size", tile_size)
+	button.custom_minimum_size = tile_size
+	for x in range(1,5):
+		var path = "edge" + str(x) + "/CollisionShape2D"
+		var colli = get_node(path)
+		var edge = colli.get_parent()
+		colli.shape.set("size", tile_size/4)
+		if x%2 == 0:
+			edge.position.y = collishape.position.y
+			if x>2:
+				edge.position.x = collishape.position.x - (tile_size.x/2)
+			else:
+				edge.position.x = collishape.position.x + (tile_size.x/2)
+		else:
+			edge.position.x = collishape.position.x
+			if x>2:
+				edge.position.y = collishape.position.y + (tile_size.y/2)
+			else:
+				edge.position.y = collishape.position.y - (tile_size.y/2)
+
 
 @export var sideColours = {
 	"north" = ["red"],
@@ -32,39 +57,31 @@ func _ready():
 	var eastColour = sideColours["east"]
 	var southColour = sideColours["south"]
 	var westColour = sideColours["west"]
+	
+	$edge1.set_meta("direction", "north")
+	$edge2.set_meta("direction", "east")
+	$edge3.set_meta("direction", "south")
+	$edge4.set_meta("direction", "west")
 
+func _process(delta: float) -> void:
+	if dragging:
+		position = get_global_mouse_position() - drag_offset
+	else:
+		if connect != null:
+			position = connect
+			connect = null
+	
+func _on_button_button_down() -> void:
+	dragging = true
+	drag_offset = get_global_mouse_position() - global_position
 
-func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
-	if G.dragging and dragging == false:
-		#do not drag current piece if other piece is being dragged
-		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.is_pressed():
-			#reset cell position when a piece is moved
-			if cell_index != -1:
-				var cell = G.find_cell(cell_index)
-				cell.unoccupy()
-				cell_index = -1
-			G.dragging = true
-			dragging = true
-			z_index = 100
-			drag_offset =  global_position - get_global_mouse_position()
-		else:
-			#release
-			G.dragging = false
-			dragging = false
-			z_index = 0
-			drop_piece()
-	elif event is InputEventMouseMotion and dragging:
-		var new_pos = get_global_mouse_position() + drag_offset
-		position = new_pos
-			
-func drop_piece():
-	var overlapping_areas = get_overlapping_areas()
-	for cell in overlapping_areas:
-		if cell.is_in_group("cell"):
-			if cell.is_free():
-				cell_index = cell.index
-				cell.occupy
-				position = cell.global_position
-				return
+func _on_button_button_up() -> void:
+	dragging = false
+
+func _on_edge_area_entered(area: Area2D) -> void:
+	if dragging:
+		connect = area.get_parent().position # position of other tile
+		connect += area.position*2
+
+func _on_edge_area_exited(area: Area2D) -> void:
+	connect = null
