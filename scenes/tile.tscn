@@ -41,6 +41,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="edge1" type="Area2D" parent="."]
+visible = false
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="edge1"]
@@ -66,6 +67,7 @@ color = Color(0.88044, 0.130263, 0.137772, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="edge2" type="Area2D" parent="."]
+visible = false
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="edge2"]
@@ -91,6 +93,7 @@ metadata/_edit_use_anchors_ = true
 texture = SubResource("GradientTexture2D_ywnoi")
 
 [node name="edge3" type="Area2D" parent="."]
+visible = false
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="edge3"]
@@ -116,6 +119,7 @@ metadata/_edit_use_anchors_ = true
 texture = SubResource("GradientTexture2D_ywnoi")
 
 [node name="edge4" type="Area2D" parent="."]
+visible = false
 position = Vector2(-6, -2)
 metadata/_edit_group_ = true
 

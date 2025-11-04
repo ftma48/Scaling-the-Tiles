@@ -12,8 +12,14 @@ var connectedTile = null
 var connected_tiles = []
 var group = null 
 
-@onready var TileGroupScene = preload("res://scenes/tile_group.tscn")
+@export var side_colours = {
+	"north" = [],
+	"east" = [],
+	"south" = [],
+	"west" = []
+}
 
+@onready var TileGroupScene = preload("res://scenes/tile_group.tscn")
 @onready var sprite2d: Sprite2D  = $Sprite2D
 @onready var collishape: CollisionShape2D = $CollisionShape2D
 @onready var button: Button = $Button
@@ -37,13 +43,15 @@ func init_tile(
 	_index: int,
 	texture: ImageTexture,
 	pos: Vector2,
-	tile_size: Vector2
+	tile_size: Vector2,
+	side_clrs: Dictionary
 ):
 	index = _index
 	sprite2d.texture = texture
 	position = pos
 	collishape.shape.set("size", tile_size)
 	button.custom_minimum_size = tile_size
+	side_colours = side_clrs
 	for x in range(1,5):
 		var path = "edge" + str(x) + "/CollisionShape2D"
 		var colli = get_node(path)
@@ -61,21 +69,70 @@ func init_tile(
 				edge.position.y = collishape.position.y + (tile_size.y/2)
 			else:
 				edge.position.y = collishape.position.y - (tile_size.y/2)
+	draw_triangles(side_colours, tile_size)
 
 
-@export var sideColours = {
-	"north" = ["red"],
-	"east" = ["blue"],
-	"south" = ["green"],
-	"west" = ["yellow"]
-}
+func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
+	var sides = {
+		"north": Vector2(0, -1),
+		"east": Vector2(1, 0),
+		"south": Vector2(0, 1),
+		"west": Vector2(-1, 0)
+	}
+	var half = tile_size / 2
+	var center = Vector2.ZERO
+
+	for dir in sides.keys():
+		var clrs = side_colours[dir]
+		if clrs.size() == 0:
+			continue
+
+		var edge_length = tile_size.x / clrs.size()
+		var start = Vector2(-half.x, -half.y)
+
+		match dir:
+			"north":
+				start = Vector2(-half.x, -half.y)
+			"east":
+				start = Vector2(half.x, -half.y)
+			"south":
+				start = Vector2(half.x, half.y)
+			"west":
+				start = Vector2(-half.x, half.y)
+
+		var step = Vector2.ZERO
+		if dir in ["north", "south"]:
+			step = Vector2(edge_length, 0)
+			if dir == "south":
+				start.x = -half.x
+				start.y = half.y
+		else:
+			step = Vector2(0, edge_length)
+			if dir == "east":
+				start.x = half.x
+				start.y = -half.y
+			elif dir == "west":
+				start.x = -half.x
+				start.y = -half.y
+
+		for colour in clrs:
+			var tri = Polygon2D.new()
+			var a = start
+			var b = start + step
+			var c = center
+			tri.polygon = [a, b, c]
+			tri.color = colour
+			add_child(tri)
+			
+			var outline = Line2D.new()
+			outline.width = 2.0
+			outline.default_color = Color.WHITE
+			outline.points = [a, b, c, a]  # close the loop
+			add_child(outline)
+			
+			start += step
 
 func _ready():
-	var northColour = sideColours["north"] 
-	var eastColour = sideColours["east"]
-	var southColour = sideColours["south"]
-	var westColour = sideColours["west"]
-	
 	$edge1.set_meta("direction", "north")
 	$edge2.set_meta("direction", "east")
 	$edge3.set_meta("direction", "south")
