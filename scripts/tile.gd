@@ -3,6 +3,8 @@ extends Area2D
 var index = -1
 var cell_index = -1
 
+var tile_size = Vector2(100,100)
+
 var dragging = false
 var drag_offset = Vector2.ZERO
 
@@ -40,22 +42,21 @@ func debug_tile_state(prefix: String = ""):
 	print("==============================")
 
 func init_tile(
-	_index: int,
-	texture: ImageTexture,
 	pos: Vector2,
-	tile_size: Vector2,
+	_tile_size: Vector2,
 	side_clrs: Dictionary
 ):
-	index = _index
-	sprite2d.texture = texture
+	tile_size = _tile_size
 	position = pos
 	collishape.shape.set("size", tile_size)
 	button.custom_minimum_size = tile_size
 	side_colours = side_clrs
-	for x in range(1,5):
+	
+	'for x in range(1,5):
 		var path = "edge" + str(x) + "/CollisionShape2D"
 		var colli = get_node(path)
 		var edge = colli.get_parent()
+		
 		colli.shape.set("size", tile_size/4)
 		if x%2 == 0:
 			edge.position.y = collishape.position.y
@@ -68,11 +69,33 @@ func init_tile(
 			if x>2:
 				edge.position.y = collishape.position.y + (tile_size.y/2)
 			else:
-				edge.position.y = collishape.position.y - (tile_size.y/2)
+				edge.position.y = collishape.position.y - (tile_size.y/2)'
 	draw_triangles(side_colours, tile_size)
 
+func _draw_edge_debug():
+	for i in range(1, 5):
+		var edge := get_node("edge%d" % i)
+		var col := edge.get_node("CollisionShape2D")
+
+		if col.shape is RectangleShape2D:
+			var size = col.shape.size
+			var pos = edge.position - (size / 2)
+
+			draw_rect(
+				Rect2(pos, size),
+				Color(1, 0, 0, 0.15),   # translucent red fill
+				true
+			)
+			draw_rect(
+				Rect2(pos, size),
+				Color(1, 0, 0, 0.8),    # red outline
+				false
+			)
 
 func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
+	var triangles = Node2D.new()
+	triangles.name = "Triangles"
+	add_child(triangles)
 	var sides = {
 		"north": Vector2(0, -1),
 		"east": Vector2(1, 0),
@@ -86,10 +109,9 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 		var clrs = side_colours[dir]
 		if clrs.size() == 0:
 			continue
-
+		
 		var edge_length = tile_size.x / clrs.size()
 		var start = Vector2(-half.x, -half.y)
-
 		match dir:
 			"north":
 				start = Vector2(-half.x, -half.y)
@@ -99,7 +121,7 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 				start = Vector2(half.x, half.y)
 			"west":
 				start = Vector2(-half.x, half.y)
-
+				
 		var step = Vector2.ZERO
 		if dir in ["north", "south"]:
 			step = Vector2(edge_length, 0)
@@ -114,7 +136,7 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 			elif dir == "west":
 				start.x = -half.x
 				start.y = -half.y
-
+				
 		for colour in clrs:
 			var tri = Polygon2D.new()
 			var a = start
@@ -122,13 +144,36 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 			var c = center
 			tri.polygon = [a, b, c]
 			tri.color = colour
-			add_child(tri)
+			triangles.add_child(tri)
 			
 			var outline = Line2D.new()
 			outline.width = 2.0
 			outline.default_color = Color.WHITE
-			outline.points = [a, b, c, a]  # close the loop
-			add_child(outline)
+			outline.points = [a, b, c, a]  
+			triangles.add_child(outline)
+			
+			# create collision shape for this triangle
+			var segment = Area2D.new()
+			triangles.add_child(segment)
+			
+			var collision = CollisionShape2D.new()
+			var square = RectangleShape2D.new()
+			square.size = Vector2(tile_size.x/4, tile_size.y/4)
+			collision.shape = square
+			segment.add_child(collision)
+			
+			# metadata
+			segment.set_meta("direction", dir)
+			segment.set_meta("colour", colour)
+			segment.set_meta("parent_tile", self)
+			
+			# signals
+			segment.connect("area_entered", Callable(self, "_on_segment_area_entered"))
+			segment.connect("area_exited", Callable(self, "_on_segment_area_exited"))
+
+			
+			var midpoint = (a + b) / 2
+			segment.position = midpoint
 			
 			start += step
 
@@ -138,7 +183,12 @@ func _ready():
 	$edge3.set_meta("direction", "south")
 	$edge4.set_meta("direction", "west")
 
+func _draw():
+	#_draw_edge_debug()
+	pass
+
 func _process(delta: float) -> void:
+	queue_redraw()
 	if dragging:
 		if get_parent().is_in_group("tile_group"):
 			var group = get_parent()
@@ -194,18 +244,52 @@ func _on_button_button_down() -> void:
 func _on_button_button_up() -> void:
 	dragging = false
 
-func _on_edge_area_entered(area: Area2D) -> void:
+func _on_segment_area_entered(area: Area2D) -> void:
+	if dragging:
+		if area.has_meta("parent_tile") and area.has_meta("direction"):
+			connectedTile = area.get_meta("parent_tile")
+			var dir = area.get_meta("direction")
+			
+			var other_size = connectedTile.tile_size
+			var this_size = tile_size
+			var target_pos = connectedTile.global_position
+			
+			match dir:
+				"north":
+					target_pos.y -= (other_size.y/2 + this_size.y/2)
+				"south":
+					target_pos.y += (other_size.y/2 + this_size.y/2)
+				"east":
+					target_pos.x += (other_size.x/2 + this_size.x/2)
+				"west":
+					target_pos.x -= (other_size.x/2 + this_size.x/2)
+			connect = target_pos
+
+func _on_segment_area_exited(area: Area2D) -> void:
+	connect = null
+	if dragging:
+		connectedTile = null
+
+'func _on_edge_area_entered(area: Area2D) -> void:
 	if dragging:
 		connectedTile = area.get_parent()
-		# Compute snap position in global space
-		var edge_global_pos = area.global_position
-		var connected_tile_global_pos = connectedTile.global_position
-
-		# The vector from the connected tile to its edge
-		var edge_vector = edge_global_pos - connected_tile_global_pos
-
-		# Mirror that vector across to find where this tile should go (in global space)
-		connect = edge_global_pos + edge_vector
+		var dir = area.get_meta("direction")  # "north","east","south","west"
+		
+		var other_size = connectedTile.tile_size
+		var this_size = tile_size
+		var target_pos = connectedTile.global_position
+		
+		match dir:
+			"north":
+				target_pos.y -= (other_size.y/2 + this_size.y/2)
+			"south":
+				target_pos.y += (other_size.y/2 + this_size.y/2)
+			"east":
+				target_pos.x += (other_size.x/2 + this_size.x/2)
+			"west":
+				target_pos.x -= (other_size.x/2 + this_size.x/2)
+		
+		connect = target_pos 
 
 func _on_edge_area_exited(area: Area2D) -> void:
 	connect = null
@@ -214,4 +298,4 @@ func _on_edge_area_exited(area: Area2D) -> void:
 		if self.is_ancestor_of(connectedTile):
 			connectedTile.remove_child(self)
 		else:
-			self.remove_child(connectedTile)
+			self.remove_child(connectedTile)'
