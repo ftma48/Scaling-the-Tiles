@@ -1,11 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://cnms3fb0kmg37"]
+[gd_scene load_steps=3 format=3 uid="uid://cnms3fb0kmg37"]
 
 [ext_resource type="Script" uid="uid://0li0ahmjpmy2" path="res://scripts/main.gd" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://c1vjflaf25yvu" path="res://scripts/puzzle_manager.gd" id="2_0wfyh"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_o5qli")
 
-[node name="Cells" type="Node2D" parent="."]
-position = Vector2(385, 385)
-
 [node name="Tiles" type="Node2D" parent="."]
+
+[node name="PuzzleManager" type="Node" parent="."]
+script = ExtResource("2_0wfyh")

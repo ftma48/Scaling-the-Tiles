@@ -1,7 +1,6 @@
 extends Area2D
 
-var index = -1
-var cell_index = -1
+var epsilon = 25
 
 var tile_size = Vector2(100,100)
 
@@ -14,32 +13,26 @@ var connectedTile = null
 var connected_tiles = []
 var group = null 
 
-@export var side_colours = {
+var side_colours = {
 	"north" = [],
 	"east" = [],
 	"south" = [],
 	"west" = []
 }
 
+var handle_dragging = false
+var handle_drag_offset := Vector2.ZERO
+var handle_active = null
+var resizing = false
+var snap_length = 0
+var snap_dir = null
+var not_equal = false
+
+
 @onready var TileGroupScene = preload("res://scenes/tile_group.tscn")
 @onready var sprite2d: Sprite2D  = $Sprite2D
 @onready var collishape: CollisionShape2D = $CollisionShape2D
 @onready var button: Button = $Button
-@onready var edge1: Area2D = $edge1
-@onready var edge1colli: CollisionShape2D = $edge1/CollisionShape2D
-
-func debug_tile_state(prefix: String = ""):
-	print("=== DEBUG TILE STATE " + prefix + " ===")
-	print("Tile:", name)
-	print(" Parent:", get_parent().name)
-	print(" Parent in group?:", get_parent().is_in_group("tile_group"))
-	print(" Local position:", position)
-	print(" Global position:", global_position)
-	print(" Global transform:", global_transform.origin)
-	print(" Dragging:", dragging)
-	print(" Connected Tile:", connectedTile if connectedTile else "None")
-	print(" Connect target (global):", connect if connect else "None")
-	print("==============================")
 
 func init_tile(
 	pos: Vector2,
@@ -48,49 +41,67 @@ func init_tile(
 ):
 	tile_size = _tile_size
 	position = pos
-	collishape.shape.set("size", tile_size)
+	# Ensure a unique shape resource per tile
+	var rect := RectangleShape2D.new()
+	rect.size = tile_size
+	collishape.shape = rect
 	button.custom_minimum_size = tile_size
 	side_colours = side_clrs
-	
-	'for x in range(1,5):
-		var path = "edge" + str(x) + "/CollisionShape2D"
-		var colli = get_node(path)
-		var edge = colli.get_parent()
-		
-		colli.shape.set("size", tile_size/4)
-		if x%2 == 0:
-			edge.position.y = collishape.position.y
-			if x>2:
-				edge.position.x = collishape.position.x - (tile_size.x/2)
-			else:
-				edge.position.x = collishape.position.x + (tile_size.x/2)
-		else:
-			edge.position.x = collishape.position.x
-			if x>2:
-				edge.position.y = collishape.position.y + (tile_size.y/2)
-			else:
-				edge.position.y = collishape.position.y - (tile_size.y/2)'
 	draw_triangles(side_colours, tile_size)
+	create_resize_handles()
 
-func _draw_edge_debug():
-	for i in range(1, 5):
-		var edge := get_node("edge%d" % i)
-		var col := edge.get_node("CollisionShape2D")
+func create_resize_handles():
+	var handles = Node2D.new()
+	handles.name = "ResizeHandles"
+	add_child(handles)
+	
+	var positions = {
+		"north": Vector2(0, -tile_size.y/2),
+		"south": Vector2(0, tile_size.y/2),
+		"east": Vector2(tile_size.x/2, 0),
+		"west": Vector2(-tile_size.x/2, 0),
+		"ne": Vector2(tile_size.x/2, -tile_size.y/2),
+		"nw": Vector2(-tile_size.x/2, -tile_size.y/2),
+		"se": Vector2(tile_size.x/2, tile_size.y/2),
+		"sw": Vector2(-tile_size.x/2, tile_size.y/2),
+	}
+	
+	for dir in positions.keys():
+		var handle = Area2D.new()
+		handle.name = dir + "_handle"
+		handles.add_child(handle)
+		
+		var shape = CollisionShape2D.new()
+		var square = RectangleShape2D.new()
+		square.size = Vector2(20,20)
+		shape.shape = square
+		handle.add_child(shape)
+		
+		handle.position = positions[dir]
+		handle.set_meta("direction", dir)
+		handle.connect("input_event", Callable(self, "_on_handle_input").bind(handle))
 
-		if col.shape is RectangleShape2D:
-			var size = col.shape.size
-			var pos = edge.position - (size / 2)
-
-			draw_rect(
-				Rect2(pos, size),
-				Color(1, 0, 0, 0.15),   # translucent red fill
-				true
-			)
-			draw_rect(
-				Rect2(pos, size),
-				Color(1, 0, 0, 0.8),    # red outline
-				false
-			)
+func update_resize_handles():
+	if not has_node("ResizeHandles"):
+		return
+	var handles = get_node("ResizeHandles")
+	var positions = {
+		"north": Vector2(0, -tile_size.y/2),
+		"south": Vector2(0, tile_size.y/2),
+		"east": Vector2(tile_size.x/2, 0),
+		"west": Vector2(-tile_size.x/2, 0),
+		"ne": Vector2(tile_size.x/2, -tile_size.y/2),
+		"nw": Vector2(-tile_size.x/2, -tile_size.y/2),
+		"se": Vector2(tile_size.x/2, tile_size.y/2),
+		"sw": Vector2(-tile_size.x/2, tile_size.y/2),
+	}
+	for dir in positions.keys():
+		var node_name = dir + "_handle"
+		if handles.has_node(node_name):
+			var h = handles.get_node(node_name)
+			h.position = positions[dir]
+		else:
+			print("missing handle:", node_name)
 
 func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 	var triangles = Node2D.new()
@@ -109,56 +120,60 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 		var clrs = side_colours[dir]
 		if clrs.size() == 0:
 			continue
-		
-		var edge_length = tile_size.x / clrs.size()
-		var start = Vector2(-half.x, -half.y)
+		print("Drawing", clrs.size(), "segments on", dir)
+		var edge_length := 0.0
+		var start := Vector2.ZERO
+		var step := Vector2.ZERO
 		match dir:
 			"north":
+				edge_length = tile_size.x / clrs.size()      # horizontal edge spans width
 				start = Vector2(-half.x, -half.y)
-			"east":
-				start = Vector2(half.x, -half.y)
+				step = Vector2(edge_length, 0)
 			"south":
-				start = Vector2(half.x, half.y)
-			"west":
+				edge_length = tile_size.x / clrs.size()      # horizontal edge spans width
 				start = Vector2(-half.x, half.y)
-				
-		var step = Vector2.ZERO
-		if dir in ["north", "south"]:
-			step = Vector2(edge_length, 0)
-			if dir == "south":
-				start.x = -half.x
-				start.y = half.y
-		else:
-			step = Vector2(0, edge_length)
-			if dir == "east":
-				start.x = half.x
-				start.y = -half.y
-			elif dir == "west":
-				start.x = -half.x
-				start.y = -half.y
+				step = Vector2(edge_length, 0)
+			"east":
+				edge_length = tile_size.y / clrs.size()      # vertical edge spans height
+				start = Vector2(half.x, -half.y)
+				step = Vector2(0, edge_length)
+			"west":
+				edge_length = tile_size.y / clrs.size()      # vertical edge spans height
+				start = Vector2(-half.x, -half.y)
+				step = Vector2(0, edge_length)
 				
 		for colour in clrs:
+			var segment_group = Node2D.new()
+			triangles.add_child(segment_group)
+			
 			var tri = Polygon2D.new()
+			tri.name = "Polygon2D"
 			var a = start
 			var b = start + step
 			var c = center
 			tri.polygon = [a, b, c]
 			tri.color = colour
-			triangles.add_child(tri)
+			segment_group.add_child(tri)
 			
 			var outline = Line2D.new()
 			outline.width = 2.0
 			outline.default_color = Color.WHITE
 			outline.points = [a, b, c, a]  
-			triangles.add_child(outline)
+			segment_group.add_child(outline)
 			
 			# create collision shape for this triangle
 			var segment = Area2D.new()
-			triangles.add_child(segment)
+			segment_group.add_child(segment)
 			
+			var seg_length
 			var collision = CollisionShape2D.new()
 			var square = RectangleShape2D.new()
-			square.size = Vector2(tile_size.x/4, tile_size.y/4)
+			if dir == "north" or dir == "south":
+				seg_length = b.x-a.x
+				square.size = Vector2(seg_length * 0.75, 10)
+			else:
+				seg_length = b.y-a.y
+				square.size = Vector2(10, seg_length * 0.75)
 			collision.shape = square
 			segment.add_child(collision)
 			
@@ -166,29 +181,32 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 			segment.set_meta("direction", dir)
 			segment.set_meta("colour", colour)
 			segment.set_meta("parent_tile", self)
+			segment.set_meta("seg_length", seg_length)
 			
 			# signals
-			segment.connect("area_entered", Callable(self, "_on_segment_area_entered"))
-			segment.connect("area_exited", Callable(self, "_on_segment_area_exited"))
-
+			segment.connect("area_entered", Callable(self, "_on_segment_area_entered").bind(segment))
+			segment.connect("area_exited", Callable(self, "_on_segment_area_exited").bind(segment))
 			
-			var midpoint = (a + b) / 2
+			print("Calculated segment length:", edge_length)
+			
+			var midpoint = (a + b) / 2 + (sides[dir] * (square.size/3))
 			segment.position = midpoint
-			
+			segment.set_meta("midpoint", midpoint)
 			start += step
 
-func _ready():
-	$edge1.set_meta("direction", "north")
-	$edge2.set_meta("direction", "east")
-	$edge3.set_meta("direction", "south")
-	$edge4.set_meta("direction", "west")
+func update_triangles():
+	if has_node("Triangles"):
+		get_node("Triangles").free()
+	draw_triangles(side_colours, tile_size)
 
-func _draw():
-	#_draw_edge_debug()
-	pass
+func to_tile_data() -> TileInfo:
+	var data = TileInfo.new()
+	data.tile_size = tile_size
+	data.start_position = global_position
+	data.side_colours = side_colours.duplicate(true)
+	return data
 
 func _process(delta: float) -> void:
-	queue_redraw()
 	if dragging:
 		if get_parent().is_in_group("tile_group"):
 			var group = get_parent()
@@ -198,26 +216,12 @@ func _process(delta: float) -> void:
 			# move just this tile 
 			var parent_space_mouse = get_parent().to_local(get_global_mouse_position())
 			position = parent_space_mouse - drag_offset
-	else:
-		if connect != null:
-			global_position = connect
-			debug_tile_state("AFTER CONNECT SNAP")
-			connected_tiles.append(connectedTile)
-			var old_global = global_transform
-			group = null
-			if connectedTile.get_parent().is_in_group("tile_group"):
-				group = connectedTile.get_parent()
-			else:
-				group = TileGroupScene.instantiate()
-				group.add_to_group("tile_group")
-				var parent = connectedTile.get_parent()
-				parent.add_child(group)
-				group.global_position = connectedTile.global_position
-				group.add_tile(connectedTile)
-			group.add_tile(self)
-			global_transform = old_global
-			connect = null
-	
+	elif handle_dragging and handle_active != null:
+		var parent = handle_active.get_parent()
+		var mouse_local = parent.to_local(get_global_mouse_position())
+		handle_active.position = mouse_local - handle_drag_offset
+		_resize_tile(handle_active)
+
 func _on_button_button_down() -> void:
 	if Input.is_key_pressed(KEY_SHIFT):
 		# detach tile from its group
@@ -225,12 +229,6 @@ func _on_button_button_down() -> void:
 			var group = get_parent()
 			if group.has_method("remove_tile"):
 				group.remove_tile(self)
-				print("detached", self.name, "from", group.name)
-				print("--- DEBUG DETACH ---")
-				print("Tile:", self.name)
-				print("New parent:", get_parent().name)
-				print("--------------------")
-				debug_tile_state("AFTER DETACHING")
 			return
 	
 	dragging = true
@@ -243,59 +241,142 @@ func _on_button_button_down() -> void:
 
 func _on_button_button_up() -> void:
 	dragging = false
+	if connect != null and connectedTile != null:
+		global_position = connect
+		connected_tiles.append(connectedTile)
+		var old_global = global_transform
+		group = null
+		if connectedTile.get_parent().is_in_group("tile_group"):
+			group = connectedTile.get_parent()
+		else:
+			group = TileGroupScene.instantiate()
+			group.add_to_group("tile_group")
+			var parent = connectedTile.get_parent()
+			parent.add_child(group)
+			group.global_position = connectedTile.global_position
+			group.add_tile(connectedTile)
+		group.add_tile(self)
+		global_transform = old_global
+		connect = null
+		if not_equal:
+			_snap_resize(snap_length, snap_dir)
 
-func _on_segment_area_entered(area: Area2D) -> void:
+
+func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 	if dragging:
-		if area.has_meta("parent_tile") and area.has_meta("direction"):
-			connectedTile = area.get_meta("parent_tile")
-			var dir = area.get_meta("direction")
-			
-			var other_size = connectedTile.tile_size
-			var this_size = tile_size
-			var target_pos = connectedTile.global_position
-			
-			match dir:
-				"north":
-					target_pos.y -= (other_size.y/2 + this_size.y/2)
-				"south":
-					target_pos.y += (other_size.y/2 + this_size.y/2)
-				"east":
-					target_pos.x += (other_size.x/2 + this_size.x/2)
-				"west":
-					target_pos.x -= (other_size.x/2 + this_size.x/2)
-			connect = target_pos
+		if area.has_meta("parent_tile") and area.has_meta("direction") and is_approximately_equal(area.get_meta("seg_length"), my_segment.get_meta("seg_length"), epsilon):
+			print("other: ", area.get_meta("colour"), " me: ", my_segment.get_meta("colour"))
+			if area.get_meta("colour") == my_segment.get_meta("colour"):
+				connectedTile = area.get_meta("parent_tile")
+				var dir = area.get_meta("direction")
+				
+				var other_mid = area.global_position
+				var my_mid = my_segment.global_position
+				var target_pos = other_mid
+				
+				var other_size = connectedTile.tile_size
+				var this_size = tile_size
+				
+				var delta = other_mid - my_mid
+				connect = global_position + (other_mid - my_mid)
+				
+				'match dir:
+					"north":
+						connect -= Vector2(0, this_size.y/2)
+					"south":
+						connect += Vector2(0, this_size.y/2)
+					"east":
+						connect += Vector2(this_size.x/2, 0)
+					"west":
+						connect -= Vector2(this_size.x/2,0)'
+				
+				snap_length = area.get_meta("seg_length")
+				snap_dir = dir
+				if not area.get_meta("seg_length") == my_segment.get_meta("seg_length"):
+					not_equal = true
+				print("Snapping to segment with length:", area.get_meta("seg_length"))
+				print("My segment length:", my_segment.get_meta("seg_length"))
+				print("My segment global position:", my_segment.global_position)
+				print("Other segment global position:", area.global_position)
 
-func _on_segment_area_exited(area: Area2D) -> void:
+
+func _on_segment_area_exited(area: Area2D, my_segment: Area2D) -> void:
 	connect = null
 	if dragging:
 		connectedTile = null
 
-'func _on_edge_area_entered(area: Area2D) -> void:
-	if dragging:
-		connectedTile = area.get_parent()
-		var dir = area.get_meta("direction")  # "north","east","south","west"
-		
-		var other_size = connectedTile.tile_size
-		var this_size = tile_size
-		var target_pos = connectedTile.global_position
-		
-		match dir:
-			"north":
-				target_pos.y -= (other_size.y/2 + this_size.y/2)
-			"south":
-				target_pos.y += (other_size.y/2 + this_size.y/2)
-			"east":
-				target_pos.x += (other_size.x/2 + this_size.x/2)
-			"west":
-				target_pos.x -= (other_size.x/2 + this_size.x/2)
-		
-		connect = target_pos 
-
-func _on_edge_area_exited(area: Area2D) -> void:
-	connect = null
-	if dragging:
-		connectedTile = area.get_parent()
-		if self.is_ancestor_of(connectedTile):
-			connectedTile.remove_child(self)
+func _on_handle_input(viewport, event, shape_idx, handle):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			handle_dragging = true
+			handle_active = handle
+			var parent = handle.get_parent()
+			var mouse_local = parent.to_local(get_global_mouse_position())
+			handle_drag_offset = mouse_local - handle.position
+			resizing = true
 		else:
-			self.remove_child(connectedTile)'
+			handle_dragging = false
+			handle_active = null
+			resizing = false
+			update_resize_handles()
+
+func _resize_tile(handle: Area2D):
+	var dir = handle.get_meta("direction")
+	var pos = handle.position
+	var new_size = tile_size
+	
+	match dir:
+		"east":
+			new_size.x = pos.x * 2
+		"west":
+			new_size.x = abs(pos.x) * 2
+		"north":
+			new_size.y = abs(pos.y) * 2
+		"south":
+			new_size.y = pos.y * 2
+		"ne", "nw", "se", "sw":
+			new_size.x = abs(pos.x) * 2
+			new_size.y = abs(pos.y) * 2
+	
+	# enforce minimum size
+	new_size.x = max(new_size.x, 50)
+	new_size.y = max(new_size.y, 50)
+	# apply new size
+	tile_size = new_size
+	collishape.shape.set("size", tile_size)
+	button.custom_minimum_size = tile_size
+	
+	update_triangles()
+
+func _snap_resize(other_segment_length, dir):
+	var my_count = side_colours[dir].size()
+	var new_size = tile_size
+	match dir:
+		"north", "south":
+			new_size.x = other_segment_length * my_count / 2
+		"east", "west":
+			new_size.y = other_segment_length * my_count / 2
+	
+	
+	# apply new size
+	tile_size = new_size
+	collishape.shape.set("size", tile_size)
+	button.custom_minimum_size = tile_size
+	update_resize_handles()
+	update_triangles()	
+	
+	print("Resizing tile on", dir)
+	print("Target segment length:", other_segment_length)
+	print("My segment count:", my_count)
+	print("New tile size:", tile_size)
+	# reset flags
+	not_equal = false
+	snap_dir = null
+	snap_length = 0
+
+func is_approximately_equal(num1, num2, epsilon):
+	var diff = abs(num1 - num2)
+	if diff < epsilon:
+		return true
+	else:
+		return false

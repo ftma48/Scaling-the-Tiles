@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TileInfo" load_steps=2 format=3 uid="uid://cehhc6c8tsdsd"]
+
+[ext_resource type="Script" uid="uid://bg757kpgld2mw" path="res://resources/tile_info.gd" id="1_e8pbm"]
+
+[resource]
+script = ExtResource("1_e8pbm")
+tile_size = Vector2(120, 120)
+start_position = Vector2(500, 500)
+side_colours = {
+&"east": ["red", "green"],
+&"north": ["red", "green"],
+&"south": ["red"],
+&"west": ["red"]
+}
