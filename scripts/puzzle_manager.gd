@@ -7,6 +7,7 @@ var mode: Mode = Mode.PLAY
 
 @onready var tile_scene = preload("res://scenes/tile.tscn")
 @onready var tile_root: Node2D = get_parent().get_node("Tiles")
+@onready var puzzle_board = preload("res://scenes/puzzle_board.gd")
 
 var colours = ["red", "blue", "green", "yellow"]
 #var tile_size: Vector2 = Vector2(100,100)
@@ -83,7 +84,93 @@ func clear():
 	clear_puzzle()
 
 func _on_add_tile_pressed():
-	spawn_tile(default_tile_data.duplicate(true))
+	var popup := Window.new()
+	popup.title = "Create Tile"
+	popup.size = Vector2(320, 260)
+	popup.position = get_viewport().get_visible_rect().size / 2 - Vector2(popup.size / 2)
+	add_child(popup)
+	
+	var root := VBoxContainer.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.offset_left = 10
+	root.offset_top = 10
+	root.offset_right = -10
+	root.offset_bottom = -10
+	popup.add_child(root)
+	
+	var size_label := Label.new()
+	size_label.text = "Tile Size"
+	root.add_child(size_label)
+	
+	var size_row := HBoxContainer.new()
+	root.add_child(size_row)
+	
+	var x_input := LineEdit.new()
+	x_input.placeholder_text = "width"
+	size_row.add_child(x_input)
+	
+	var y_input := LineEdit.new()
+	y_input.placeholder_text = "height"
+	size_row.add_child(y_input)
+	
+	var colour_label := Label.new()
+	colour_label.text = "Side Colours"
+	root.add_child(colour_label)
+	
+	var sides := []
+	for side in ["north", "east", "south", "west"]:
+		var input := LineEdit.new()
+		input.placeholder_text = side
+		root.add_child(input)
+		sides.append(input)
+	
+	var button_row := HBoxContainer.new()
+	root.add_child(button_row)
+	
+	var confirm := Button.new()
+	confirm.text = "Confirm"
+	button_row.add_child(confirm)
+	
+	var cancel := Button.new()
+	cancel.text = "Cancel"
+	button_row.add_child(cancel)
+	
+	confirm.pressed.connect(func():
+		var tile_size := Vector2(
+			float(x_input.text),
+			float(y_input.text)
+		)
+		
+		var side_colours: Dictionary = {
+			"north": _parse_colour_list(sides[0].text),
+			"east":  _parse_colour_list(sides[1].text),
+			"south": _parse_colour_list(sides[2].text),
+			"west":  _parse_colour_list(sides[3].text)
+		}
+		
+		var data = TileInfo.new()
+		data.tile_size = tile_size
+		data.start_position = Vector2(500,500)
+		data.side_colours = side_colours.duplicate(true)
+		
+		spawn_tile(data.duplicate(true))
+		
+		popup.queue_free()
+	)
+	
+	cancel.pressed.connect(func():
+		popup.queue_free()
+	)
+	
+	popup.popup_centered()
+
+func _parse_colour_list(text: String) -> Array:
+	var result: Array = []
+	for item in text.split(",", false):
+		var cleaned := item.strip_edges()
+		if cleaned != "":
+			result.append(cleaned)
+	return result
 
 func _on_save_puzzle_pressed():
 	var id = Time.get_datetime_string_from_system().replace(":", "-").replace(" ", "_")

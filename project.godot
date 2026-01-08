@@ -21,8 +21,7 @@ G="*res://scripts/g.gd"
 
 [display]
 
-window/size/viewport_width=1024
-window/size/viewport_height=1024
+window/size/viewport_width=1151
 window/stretch/mode="canvas_items"
 
 [rendering]

@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://cnms3fb0kmg37"]
+[gd_scene load_steps=6 format=3 uid="uid://cnms3fb0kmg37"]
 
 [ext_resource type="Script" uid="uid://0li0ahmjpmy2" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Script" uid="uid://c1vjflaf25yvu" path="res://scripts/puzzle_manager.gd" id="2_0wfyh"]
+[ext_resource type="Script" uid="uid://dqexvs3kp2bvn" path="res://scenes/puzzle_board.gd" id="3_sugp2"]
+[ext_resource type="AudioStream" uid="uid://by5uododxgklv" path="res://resources/connect.wav" id="4_jyhfs"]
+[ext_resource type="AudioStream" uid="uid://b1ddxp24fyyxg" path="res://resources/disconnect.wav" id="5_tbgi4"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_o5qli")
@@ -10,3 +13,12 @@ script = ExtResource("1_o5qli")
 
 [node name="PuzzleManager" type="Node" parent="."]
 script = ExtResource("2_0wfyh")
+
+[node name="PuzzleBoard" type="Node2D" parent="." groups=["puzzle_board"]]
+script = ExtResource("3_sugp2")
+
+[node name="connectSfx" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_jyhfs")
+
+[node name="disconnectSfx" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_tbgi4")

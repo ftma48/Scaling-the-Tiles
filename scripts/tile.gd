@@ -33,12 +33,15 @@ var not_equal = false
 @onready var sprite2d: Sprite2D  = $Sprite2D
 @onready var collishape: CollisionShape2D = $CollisionShape2D
 @onready var button: Button = $Button
+@onready var connectSound: AudioStreamPlayer = get_node_or_null("../../connectSfx")
+@onready var disconnectSound: AudioStreamPlayer = get_node_or_null("../../disconnectSfx")
 
 func init_tile(
 	pos: Vector2,
 	_tile_size: Vector2,
 	side_clrs: Dictionary
 ):
+	print(connectSound)
 	tile_size = _tile_size
 	position = pos
 	# Ensure a unique shape resource per tile
@@ -104,6 +107,11 @@ func update_resize_handles():
 			print("missing handle:", node_name)
 
 func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
+	var outline_colour
+	if connect:
+		outline_colour = Color.AQUA
+	else:
+		outline_colour = Color.WHITE
 	var triangles = Node2D.new()
 	triangles.name = "Triangles"
 	add_child(triangles)
@@ -126,19 +134,19 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 		var step := Vector2.ZERO
 		match dir:
 			"north":
-				edge_length = tile_size.x / clrs.size()      # horizontal edge spans width
+				edge_length = tile_size.x / clrs.size()   
 				start = Vector2(-half.x, -half.y)
 				step = Vector2(edge_length, 0)
 			"south":
-				edge_length = tile_size.x / clrs.size()      # horizontal edge spans width
+				edge_length = tile_size.x / clrs.size()     
 				start = Vector2(-half.x, half.y)
 				step = Vector2(edge_length, 0)
 			"east":
-				edge_length = tile_size.y / clrs.size()      # vertical edge spans height
+				edge_length = tile_size.y / clrs.size()    
 				start = Vector2(half.x, -half.y)
 				step = Vector2(0, edge_length)
 			"west":
-				edge_length = tile_size.y / clrs.size()      # vertical edge spans height
+				edge_length = tile_size.y / clrs.size()     
 				start = Vector2(-half.x, -half.y)
 				step = Vector2(0, edge_length)
 				
@@ -156,8 +164,9 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 			segment_group.add_child(tri)
 			
 			var outline = Line2D.new()
+			outline.name = "Outline"
 			outline.width = 2.0
-			outline.default_color = Color.WHITE
+			outline.default_color = outline_colour
 			outline.points = [a, b, c, a]  
 			segment_group.add_child(outline)
 			
@@ -216,6 +225,7 @@ func _process(delta: float) -> void:
 			# move just this tile 
 			var parent_space_mouse = get_parent().to_local(get_global_mouse_position())
 			position = parent_space_mouse - drag_offset
+		clamp_to_board()
 	elif handle_dragging and handle_active != null:
 		var parent = handle_active.get_parent()
 		var mouse_local = parent.to_local(get_global_mouse_position())
@@ -229,7 +239,7 @@ func _on_button_button_down() -> void:
 			var group = get_parent()
 			if group.has_method("remove_tile"):
 				group.remove_tile(self)
-			return
+			disconnectSound.play()
 	
 	dragging = true
 	if get_parent().is_in_group("tile_group"):
@@ -258,9 +268,29 @@ func _on_button_button_up() -> void:
 		group.add_tile(self)
 		global_transform = old_global
 		connect = null
+		connectSound.play()
 		if not_equal:
 			_snap_resize(snap_length, snap_dir)
 
+func clamp_to_board():
+	var board := get_tree().get_first_node_in_group("puzzle_board")
+	if board == null:
+		return
+	
+	var half
+	if get_parent().is_in_group("tile_group"):
+		group = get_parent()
+		half = group.get_size() / 2
+		var min = board.global_position - board.board_size / 2 + half
+		var max = board.global_position + board.board_size / 2 - half
+		
+		group.global_position = group.global_position.clamp(min, max)
+	else:
+		half = tile_size / 2
+		var min = board.global_position - board.board_size / 2 + half
+		var max = board.global_position + board.board_size / 2 - half
+		
+		global_position = global_position.clamp(min, max)
 
 func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 	if dragging:
@@ -278,17 +308,14 @@ func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 				var this_size = tile_size
 				
 				var delta = other_mid - my_mid
-				connect = global_position + (other_mid - my_mid)
+				connect = global_position + (other_mid - my_mid) 
 				
-				'match dir:
-					"north":
-						connect -= Vector2(0, this_size.y/2)
-					"south":
-						connect += Vector2(0, this_size.y/2)
-					"east":
-						connect += Vector2(this_size.x/2, 0)
-					"west":
-						connect -= Vector2(this_size.x/2,0)'
+				var line = area.get_parent().get_node("Outline")
+				var line2 = my_segment.get_parent().get_node("Outline")
+				line.default_color = Color.AQUA
+				line.width = 4.0
+				line2.default_color = Color.AQUA
+				line2.width = 4.0
 				
 				snap_length = area.get_meta("seg_length")
 				snap_dir = dir
@@ -304,6 +331,15 @@ func _on_segment_area_exited(area: Area2D, my_segment: Area2D) -> void:
 	connect = null
 	if dragging:
 		connectedTile = null
+		
+	if area.get_parent().has_node("Outline"):
+		var line = area.get_parent().get_node("Outline")
+		line.default_color = Color.WHITE
+		line.width = 2.0
+	if my_segment.get_parent().has_node("Outline"):
+		var line2 = my_segment.get_parent().get_node("Outline")
+		line2.default_color = Color.WHITE
+		line2.width = 2.0
 
 func _on_handle_input(viewport, event, shape_idx, handle):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:

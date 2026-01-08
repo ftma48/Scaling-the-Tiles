@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_eslcr"]
+
+[resource]
+script = ExtResource("1_eslcr")
+puzzle_name = "2026-01-01T21-59-06"
+tiles = []
