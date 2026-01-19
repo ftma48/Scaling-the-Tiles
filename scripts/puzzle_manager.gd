@@ -2,11 +2,10 @@ extends Node
 
 class_name PuzzleManager
 
-enum Mode { PLAY, AUTHOR }
-var mode: Mode = Mode.PLAY
+var mode = "START"
 
 @onready var tile_scene = preload("res://scenes/tile.tscn")
-@onready var tile_root: Node2D = get_parent().get_node("Tiles")
+@onready var tile_root: Node2D
 @onready var puzzle_board = preload("res://scenes/puzzle_board.gd")
 
 var colours = ["red", "blue", "green", "yellow"]
@@ -17,9 +16,52 @@ var default_tile_data = preload("res://resources/default_tile_data.tres")
 var current_puzzle: PuzzleData
 var tiles := []
 
+func play_mode():
+	if has_node("PlayUI"):
+		return
+	
+	get_parent().clear_all_ui()
+	mode = "PLAY"
+	
+	var canvas := CanvasLayer.new()
+	canvas.name = "PlayUI"
+	add_child(canvas)
+	
+	var root := Control.new()
+	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	canvas.add_child(root)
+	
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	root.add_child(center)
+	
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 20)
+	center.add_child(vbox)
+	
+	vbox.add_child(_make_button("Puzzle 1", func():
+		get_node("PlayUI").queue_free()
+		load_puzzle(load("res://puzzles/puzzle_2025-12-18T22-13-07.tres"))
+	))
+	
+	vbox.add_child(_make_button("Puzzle 2", func():
+		get_node("PlayUI").queue_free()
+		load_puzzle(current_puzzle)
+	))
+	
+	vbox.add_child(_make_button("Puzzle 3", func():
+		get_node("PlayUI").queue_free()
+		load_puzzle(current_puzzle)
+	))
+
 func author_mode():
 	if has_node("AuthorUI"):
 		return
+	
+	get_parent().clear_all_ui()
+	
+	mode = "AUTHOR"
 	
 	var canvas := CanvasLayer.new()
 	canvas.name = "AuthorUI"

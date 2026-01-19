@@ -243,11 +243,17 @@ func _on_button_button_down() -> void:
 	
 	dragging = true
 	if get_parent().is_in_group("tile_group"):
-		# calculate offset from the group's position instead of the tile
+		# calculate offset from the group's position 
 		var group = get_parent()
 		drag_offset = get_global_mouse_position() - group.global_position
 	else:
 		drag_offset = get_global_mouse_position() - global_position
+
+func _on_button_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_RIGHT:
+			print("Right click detected")
+
 
 func _on_button_button_up() -> void:
 	dragging = false
@@ -389,9 +395,9 @@ func _snap_resize(other_segment_length, dir):
 	var new_size = tile_size
 	match dir:
 		"north", "south":
-			new_size.x = other_segment_length * my_count / 2
+			new_size.x = other_segment_length * my_count
 		"east", "west":
-			new_size.y = other_segment_length * my_count / 2
+			new_size.y = other_segment_length * my_count
 	
 	
 	# apply new size

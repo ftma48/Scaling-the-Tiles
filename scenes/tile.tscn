@@ -30,3 +30,4 @@ grow_vertical = 2
 [connection signal="input_event" from="." to="." method="_on_input_event"]
 [connection signal="button_down" from="Button" to="." method="_on_button_button_down"]
 [connection signal="button_up" from="Button" to="." method="_on_button_button_up"]
+[connection signal="gui_input" from="Button" to="." method="_on_button_gui_input"]
