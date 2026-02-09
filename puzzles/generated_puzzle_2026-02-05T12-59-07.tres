@@ -1,0 +1,137 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_k3jgs"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_tocvw"]
+
+[sub_resource type="Resource" id="Resource_vw5xh"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(300, 100)
+start_position = Vector2(946, 156.4)
+side_colours = {
+"east": ["blue"],
+"north": ["blue", "yellow", "green"],
+"south": ["red", "red", "green"],
+"west": ["blue"]
+}
+
+[sub_resource type="Resource" id="Resource_m3aj1"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 300)
+start_position = Vector2(1146, 256.4)
+side_colours = {
+"east": ["yellow", "yellow", "green"],
+"north": ["green"],
+"south": ["red"],
+"west": ["blue", "green", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_ajc7p"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 200)
+start_position = Vector2(1246, 206.4)
+side_colours = {
+"east": ["yellow", "yellow"],
+"north": ["blue"],
+"south": ["yellow"],
+"west": ["yellow", "yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_ud4j7"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 400)
+start_position = Vector2(846, 406.4)
+side_colours = {
+"east": ["yellow", "red", "yellow", "red"],
+"north": ["red"],
+"south": ["red"],
+"west": ["red", "red", "yellow", "green"]
+}
+
+[sub_resource type="Resource" id="Resource_oxoyp"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(200, 100)
+start_position = Vector2(996, 256.4)
+side_colours = {
+"east": ["green"],
+"north": ["red", "green"],
+"south": ["blue", "red"],
+"west": ["yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_dm5wl"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 100)
+start_position = Vector2(946, 356.4)
+side_colours = {
+"east": ["blue"],
+"north": ["blue"],
+"south": ["yellow"],
+"west": ["red"]
+}
+
+[sub_resource type="Resource" id="Resource_81qfx"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 300)
+start_position = Vector2(1046, 456.4)
+side_colours = {
+"east": ["blue", "red", "yellow"],
+"north": ["red"],
+"south": ["red"],
+"west": ["blue", "green", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_i2ykr"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 300)
+start_position = Vector2(1246, 456.4)
+side_colours = {
+"east": ["red", "blue", "green"],
+"north": ["yellow"],
+"south": ["yellow"],
+"west": ["green", "red", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_0uhl4"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 200)
+start_position = Vector2(946, 506.4)
+side_colours = {
+"east": ["green", "blue"],
+"north": ["yellow"],
+"south": ["green"],
+"west": ["yellow", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_v1f3h"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 100)
+start_position = Vector2(1146, 456.4)
+side_colours = {
+"east": ["red"],
+"north": ["red"],
+"south": ["blue"],
+"west": ["red"]
+}
+
+[sub_resource type="Resource" id="Resource_3e8cb"]
+script = ExtResource("2_tocvw")
+tile_size = Vector2(100, 100)
+start_position = Vector2(1146, 556.4)
+side_colours = {
+"east": ["blue"],
+"north": ["blue"],
+"south": ["blue"],
+"west": ["yellow"]
+}
+
+[resource]
+script = ExtResource("1_k3jgs")
+puzzle_name = "generated_2026-02-05T12:59:07"
+tiles = Array[ExtResource("2_tocvw")]([SubResource("Resource_vw5xh"), SubResource("Resource_m3aj1"), SubResource("Resource_ajc7p"), SubResource("Resource_ud4j7"), SubResource("Resource_oxoyp"), SubResource("Resource_dm5wl"), SubResource("Resource_81qfx"), SubResource("Resource_i2ykr"), SubResource("Resource_0uhl4"), SubResource("Resource_v1f3h"), SubResource("Resource_3e8cb")])
+board_size = Vector2(500, 500)
+board_colours = {
+"east": [],
+"north": [],
+"south": [],
+"west": []
+}

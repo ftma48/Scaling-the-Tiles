@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_ahftu"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_bujid"]
+
+[sub_resource type="Resource" id="Resource_vkqcy"]
+script = ExtResource("2_bujid")
+tile_size = Vector2(300, 300)
+start_position = Vector2(946, 256.4)
+side_colours = {
+"east": ["green", "red", "red"],
+"north": ["red", "yellow", "blue"],
+"south": ["red", "green", "green"],
+"west": ["yellow", "blue", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_d1x40"]
+script = ExtResource("2_bujid")
+tile_size = Vector2(200, 300)
+start_position = Vector2(1196, 256.4)
+side_colours = {
+"east": ["blue", "blue", "green"],
+"north": ["red", "blue"],
+"south": ["red", "green"],
+"west": ["green", "red", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_5n41e"]
+script = ExtResource("2_bujid")
+tile_size = Vector2(300, 200)
+start_position = Vector2(946, 506.4)
+side_colours = {
+"east": ["green", "blue"],
+"north": ["red", "green", "green"],
+"south": ["blue", "red", "blue"],
+"west": ["blue", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_1jhpu"]
+script = ExtResource("2_bujid")
+tile_size = Vector2(200, 100)
+start_position = Vector2(1196, 456.4)
+side_colours = {
+"east": ["yellow"],
+"north": ["red", "green"],
+"south": ["yellow", "yellow"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_nbwag"]
+script = ExtResource("2_bujid")
+tile_size = Vector2(100, 100)
+start_position = Vector2(1146, 556.4)
+side_colours = {
+"east": ["blue"],
+"north": ["yellow"],
+"south": ["yellow"],
+"west": ["blue"]
+}
+
+[sub_resource type="Resource" id="Resource_1mgbd"]
+script = ExtResource("2_bujid")
+tile_size = Vector2(100, 100)
+start_position = Vector2(1246, 556.4)
+side_colours = {
+"east": ["yellow"],
+"north": ["yellow"],
+"south": ["red"],
+"west": ["blue"]
+}
+
+[resource]
+script = ExtResource("1_ahftu")
+puzzle_name = "generated_2026-02-05T13:18:33"
+tiles = Array[ExtResource("2_bujid")]([SubResource("Resource_vkqcy"), SubResource("Resource_d1x40"), SubResource("Resource_5n41e"), SubResource("Resource_1jhpu"), SubResource("Resource_nbwag"), SubResource("Resource_1mgbd")])
+board_size = Vector2(500, 500)
+board_colours = {
+"east": ["blue", "blue", "green", "yellow", "yellow"],
+"north": ["red", "yellow", "blue", "red", "blue"],
+"south": ["blue", "red", "blue", "yellow", "red"],
+"west": ["yellow", "blue", "blue", "blue", "blue"]
+}

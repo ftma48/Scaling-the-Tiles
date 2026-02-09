@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_bgyq4"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_1tyan"]
+
+[sub_resource type="Resource" id="Resource_arw1c"]
+script = ExtResource("2_1tyan")
+tile_size = Vector2(600, 600)
+start_position = Vector2(1046, 356.4)
+side_colours = {
+"east": ["blue", "blue", "green"],
+"north": ["blue", "blue", "green"],
+"south": ["blue", "green", "yellow"],
+"west": ["green", "blue", "yellow"]
+}
+
+[resource]
+script = ExtResource("1_bgyq4")
+puzzle_name = "generated_2026-02-05T13:12:42"
+tiles = Array[ExtResource("2_1tyan")]([SubResource("Resource_arw1c")])
+board_size = Vector2(600, 600)
+board_colours = {
+"east": ["blue", "blue", "green"],
+"north": ["blue", "blue", "green"],
+"south": ["blue", "green", "yellow"],
+"west": ["green", "blue", "yellow"]
+}

@@ -6,6 +6,7 @@ func add_tile(tile: Area2D):
 	if not tile in tiles:
 		tiles.append(tile)
 		tile.reparent(self)
+
 func remove_tile(tile: Area2D):
 	if tile in tiles:
 		tiles.erase(tile)
@@ -18,13 +19,47 @@ func remove_tile(tile: Area2D):
 			queue_free()
 
 func get_size() -> Vector2:
+	if tiles.is_empty():
+		return Vector2.ZERO
+
 	var min := Vector2.INF
 	var max := -Vector2.INF
 	
-	for t in self.get_children():
+	for t in tiles:
 		var half = t.tile_size / 2
-		var p = t.global_position
+		var p = t.position  # LOCAL position relative to group
 		min = min.min(p - half)
 		max = max.max(p + half)
 		
 	return max - min
+
+func get_bounds() -> Rect2:
+	# Returns the bounding rectangle of all tiles relative to the group origin
+	if tiles.is_empty():
+		return Rect2(Vector2.ZERO, Vector2.ZERO)
+
+	var min := Vector2.INF
+	var max := -Vector2.INF
+	
+	for t in tiles:
+		var half = t.tile_size / 2
+		var p = t.position  # LOCAL position inside group
+		min = min.min(p - half)
+		max = max.max(p + half)
+	
+	return Rect2(min, max - min)
+	
+func get_global_bounds() -> Rect2:
+	if tiles.is_empty():
+		return Rect2(global_position, Vector2.ZERO)
+		
+	var min := Vector2.INF
+	var max := -Vector2.INF
+	
+	for t in tiles:
+		var half = t.tile_size / 2
+		var global_p = t.global_position
+		min = min.min(global_p - half)
+		max = max.max(global_p + half)
+	
+	return Rect2(min, max - min)

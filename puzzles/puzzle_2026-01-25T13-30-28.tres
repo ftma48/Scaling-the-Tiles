@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_jeful"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_jc435"]
+
+[sub_resource type="Resource" id="Resource_np5ss"]
+script = ExtResource("2_jc435")
+tile_size = Vector2(120, 120)
+start_position = Vector2(549, 295)
+side_colours = {
+"east": ["green"],
+"north": ["red"],
+"south": ["red"],
+"west": ["green"]
+}
+
+[resource]
+script = ExtResource("1_jeful")
+puzzle_name = "2026-01-25T13-30-28"
+tiles = [SubResource("Resource_np5ss")]

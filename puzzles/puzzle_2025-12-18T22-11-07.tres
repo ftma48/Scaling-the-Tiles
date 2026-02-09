@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="PuzzleData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=4 format=3 uid="uid://dxfgmff284efu"]
 
-[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_nhw3e"]
-[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_lq3sp"]
+[ext_resource type="Script" uid="uid://brov7btd28fhx" path="res://resources/puzzle_data.gd" id="1_nhw3e"]
+[ext_resource type="Script" uid="uid://bg757kpgld2mw" path="res://resources/tile_info.gd" id="2_lq3sp"]
 
 [sub_resource type="Resource" id="Resource_hrjkv"]
 script = ExtResource("2_lq3sp")
@@ -18,3 +18,10 @@ side_colours = {
 script = ExtResource("1_nhw3e")
 puzzle_name = "2025-12-18T22-11-07"
 tiles = [SubResource("Resource_hrjkv")]
+board_size = Vector2(0, 0)
+board_colours = {
+"east": ["red", "green"],
+"north": ["red", "green"],
+"south": ["red", "blue"],
+"west": ["red", "blue"]
+}
