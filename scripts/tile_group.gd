@@ -3,13 +3,15 @@ extends Node2D
 var tiles: Array = []
 
 func add_tile(tile: Area2D):
-	if not tile in tiles:
+	if tile not in tiles:
 		tiles.append(tile)
 		tile.reparent(self)
+		tile.group = self
 
 func remove_tile(tile: Area2D):
 	if tile in tiles:
 		tiles.erase(tile)
+		tile.group = null
 		var tiles_parent = get_tree().get_root().get_node("Main/Tiles")
 		if tiles_parent:
 			tile.reparent(tiles_parent)
@@ -17,6 +19,9 @@ func remove_tile(tile: Area2D):
 			push_warning("Could not find 'Main/Tiles' to reparent tile!")
 		if tiles.is_empty():
 			queue_free()
+
+func get_tiles():
+	return tiles
 
 func get_size() -> Vector2:
 	if tiles.is_empty():

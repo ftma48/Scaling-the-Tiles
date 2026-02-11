@@ -1,19 +1,13 @@
 extends Area2D
 
 var epsilon = 25
-
 var tile_size = Vector2(100,100)
-
 var dragging = false
 var drag_offset = Vector2.ZERO
-
 var connect = null
 var connectedTile = null
-
-var connected_tiles = []
 var group = null 
-
-var right_click = false
+var is_selected = false
 
 var side_colours = {
 	"north" = [],
@@ -31,7 +25,6 @@ var resizing = false
 var snap_length = 0
 var snap_dir = null
 var not_equal = false
-
 
 @onready var TileGroupScene = preload("res://scenes/tile_group.tscn")
 @onready var sprite2d: Sprite2D  = $Sprite2D
@@ -54,7 +47,6 @@ func init_tile(
 	data = myData
 	tile_size = _tile_size
 	position = pos
-	# Ensure a unique shape resource per tile
 	var rect := RectangleShape2D.new()
 	rect.size = tile_size
 	collishape.shape = rect
@@ -101,6 +93,19 @@ func create_resize_handles():
 		handle.position = positions[dir]
 		handle.set_meta("direction", dir)
 		handle.connect("input_event", Callable(self, "_on_handle_input").bind(handle))
+
+func _get_anchor_local(dir: String) -> Vector2:
+	var half = tile_size / 2
+	match dir:
+		"east":  return Vector2(-half.x, 0)
+		"west":  return Vector2( half.x, 0)
+		"north": return Vector2(0,  half.y)
+		"south": return Vector2(0, -half.y)
+		"ne":    return Vector2(-half.x,  half.y)
+		"nw":    return Vector2( half.x,  half.y)
+		"se":    return Vector2(-half.x, -half.y)
+		"sw":    return Vector2( half.x, -half.y)
+	return Vector2.ZERO
 
 func update_resize_handles():
 	if not has_node("ResizeHandles"):
@@ -242,10 +247,7 @@ func _process(delta: float) -> void:
 			position = parent_space_mouse - drag_offset
 		#clamp_to_board()
 	elif handle_dragging and handle_active != null:
-		var parent = handle_active.get_parent()
-		var mouse_local = parent.to_local(get_global_mouse_position())
-		handle_active.position = mouse_local - handle_drag_offset
-		_resize_tile(handle_active)
+		_resize_tile_from_mouse(handle_active)
 
 func _on_button_button_down() -> void:
 	if Input.is_key_pressed(KEY_SHIFT):
@@ -267,8 +269,29 @@ func _on_button_button_down() -> void:
 func _on_button_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
-			print("Right click detected")
-			puzzleManager.selected_tile = self
+			var selected
+			if puzzleManager.selected_tile:
+				selected = puzzleManager.selected_tile
+			puzzleManager.set_selected_tile(self)
+			is_selected = true
+			_update_selection_visual()
+			if selected:
+				selected._update_selection_visual()
+
+func _update_selection_visual() -> void:
+	if not has_node("Triangles"):
+		return
+	
+	var triangles = get_node("Triangles")
+	for segment_group in triangles.get_children():
+		if segment_group.has_node("Outline"):
+			var line: Line2D = segment_group.get_node("Outline") 
+			if puzzleManager.selected_tile == self:
+				line.default_color = Color.GOLD
+				line.width = 4.0
+			else:
+				line.default_color = Color.WHITE
+				line.width = 2.0
 
 func duplicate_tile():
 	if get_parent().is_in_group("tile_group"):
@@ -277,6 +300,8 @@ func duplicate_tile():
 	else:
 		data = to_tile_data()
 		puzzleManager.duplicate_tile(data)
+	puzzleManager.set_selected_tile(null)
+	_update_selection_visual()
 
 func delete_tile():
 	if get_parent().is_in_group("tile_group"):
@@ -285,17 +310,17 @@ func delete_tile():
 			group.remove_tile(self)
 	
 	puzzleManager.remove_tile_from_puzzle(self)
-	
 	queue_free()
-
+	
+	puzzleManager.set_selected_tile(null)
+	_update_selection_visual()
 
 func _on_button_button_up() -> void:
 	dragging = false
-
+	
 	if connect != null:
 		if connectedTile != null:
 			global_position = connect
-			connected_tiles.append(connectedTile)
 			
 			var old_global = global_transform
 			group = null
@@ -322,7 +347,6 @@ func _on_button_button_up() -> void:
 			print("connecting to board")
 			connectSound.play()  
 			
-			# CLEAR BOARD GLOW
 			var board := get_tree().get_first_node_in_group("puzzle_board")
 			if board and board.edge_segments_container:
 				for seg in board.edge_segments_container.get_children():
@@ -505,33 +529,87 @@ func _on_handle_input(viewport, event, shape_idx, handle):
 			resizing = false
 			update_resize_handles()
 
-func _resize_tile(handle: Area2D):
+func _resize_tile_from_mouse(handle: Area2D):
 	var dir = handle.get_meta("direction")
-	var pos = handle.position
+
+	# anchor BEFORE resize
+	var anchor_local = _get_anchor_local(dir)
+	var anchor_global = to_global(anchor_local)
+
+	var mouse_local = to_local(get_global_mouse_position())
 	var new_size = tile_size
-	
+
 	match dir:
 		"east":
-			new_size.x = pos.x * 2
+			new_size.x = max((mouse_local.x - anchor_local.x), 50)
 		"west":
-			new_size.x = abs(pos.x) * 2
+			new_size.x = max((anchor_local.x - mouse_local.x), 50)
 		"north":
-			new_size.y = abs(pos.y) * 2
+			new_size.y = max((anchor_local.y - mouse_local.y), 50)
 		"south":
-			new_size.y = pos.y * 2
+			new_size.y = max((mouse_local.y - anchor_local.y), 50)
 		"ne", "nw", "se", "sw":
-			new_size.x = abs(pos.x) * 2
-			new_size.y = abs(pos.y) * 2
-	
-	# enforce minimum size
-	new_size.x = max(new_size.x, 50)
-	new_size.y = max(new_size.y, 50)
-	# apply new size
+			new_size.x = max(abs(mouse_local.x - anchor_local.x), 50)
+			new_size.y = max(abs(mouse_local.y - anchor_local.y), 50)
+
+	# apply
 	tile_size = new_size
-	collishape.shape.set("size", tile_size)
+	collishape.shape.size = tile_size
 	button.custom_minimum_size = tile_size
-	
+
+	# restore anchor
+	var new_anchor_local = _get_anchor_local(dir)
+	var new_anchor_global = to_global(new_anchor_local)
+	global_position += anchor_global - new_anchor_global
+
 	update_triangles()
+	update_resize_handles()
+
+
+func _resize_tile(handle: Area2D):
+	var dir = handle.get_meta("direction")
+
+	# anchor BEFORE resize
+	var anchor_local = _get_anchor_local(dir)
+	var anchor_global = to_global(anchor_local)
+
+	var pos = handle.position
+	var new_size = tile_size
+
+	match dir:
+		"east":
+			new_size.x = max(pos.x * 2, 50)
+		"west":
+			new_size.x = max(abs(pos.x) * 2, 50)
+		"north":
+			new_size.y = max(abs(pos.y) * 2, 50)
+		"south":
+			new_size.y = max(pos.y * 2, 50)
+		"ne", "nw", "se", "sw":
+			new_size.x = max(abs(pos.x) * 2, 50)
+			new_size.y = max(abs(pos.y) * 2, 50)
+
+	# apply size
+	tile_size = new_size
+	collishape.shape.size = tile_size
+	button.custom_minimum_size = tile_size
+
+	# restore anchor position
+	var new_anchor_local = _get_anchor_local(dir)
+	var new_anchor_global = to_global(new_anchor_local)
+	global_position += anchor_global - new_anchor_global
+
+	update_triangles()
+	update_resize_handles()
+
+func _unhandled_input(event):
+	if event is InputEventMouseButton \
+	and event.button_index == MOUSE_BUTTON_LEFT \
+	and not event.pressed:
+		handle_dragging = false
+		handle_active = null
+		resizing = false
+
 
 func _snap_resize(other_segment_length, dir):
 	print("resizing ", dir)

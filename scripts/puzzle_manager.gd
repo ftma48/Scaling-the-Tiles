@@ -1,5 +1,4 @@
 extends Node
-
 class_name PuzzleManager
 
 var mode = "START"
@@ -8,11 +7,12 @@ var mode = "START"
 @onready var tile_root: Node2D
 
 var colours = ["red", "blue", "green", "yellow"]
-
 var default_tile_data = preload("res://resources/default_tile_data.tres")
 var current_puzzle: PuzzleData
 var tiles := []
 var selected_tile: Node2D
+var duplicate_button
+var delete_button
 var only_unique = true
 var board_size
 var board_colours
@@ -107,8 +107,11 @@ func author_mode():
 	vbox.add_child(_make_button("Solve Puzzle", _on_solve_puzzle_pressed))
 	vbox.add_child(_make_button("Clear", _on_clear_pressed))
 	
-	vbox.add_child(_make_button("Duplicate", _on_duplicate_pressed))
-	vbox.add_child(_make_button("Delete", _on_delete_pressed))
+	duplicate_button = _make_button("Duplicate", _on_duplicate_pressed)
+	vbox.add_child(duplicate_button)
+
+	delete_button = _make_button("Delete", _on_delete_pressed)
+	vbox.add_child(delete_button)
 	
 	vbox.add_child(_make_button("Back", _on_back_pressed))
 
@@ -135,8 +138,11 @@ func _show_puzzle_controls():
 		left_vbox.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		left_root.add_child(left_vbox)
 		
-		left_vbox.add_child(_make_button("Duplicate", _on_duplicate_pressed))
-		left_vbox.add_child(_make_button("Delete", _on_delete_pressed))
+		duplicate_button = _make_button("Duplicate", _on_duplicate_pressed)
+		left_vbox.add_child(duplicate_button)
+
+		delete_button = _make_button("Delete", _on_delete_pressed)
+		left_vbox.add_child(delete_button)
 		
 		left_vbox.add_child(_make_button("Solve Puzzle", _on_solve_puzzle_pressed))
 		left_vbox.add_child(_make_button("Back", _on_back_pressed))
@@ -220,6 +226,37 @@ func _side_colours_signature(sc: Dictionary) -> String:
 		",".join(sc.get("south", [])),
 		",".join(sc.get("west", []))
 	]
+
+func set_selected_tile(tile: Node2D):
+	var previous = selected_tile
+	selected_tile = tile
+	
+	# Update previous tile visual
+	if previous and previous.has_method("_update_selection_visual"):
+		previous._update_selection_visual()
+	
+	# Update new tile visual
+	if selected_tile and selected_tile.has_method("_update_selection_visual"):
+		selected_tile._update_selection_visual()
+	
+	_update_selection_ui()
+
+func _update_selection_ui():
+	var disabled := selected_tile == null
+	
+	if duplicate_button:
+		duplicate_button.disabled = disabled
+	
+	if delete_button:
+		delete_button.disabled = disabled
+
+func _unhandled_input(event):
+	if event is InputEventMouseButton \
+	and event.button_index == MOUSE_BUTTON_LEFT \
+	and event.pressed:
+		
+		if selected_tile != null:
+			set_selected_tile(null)
 
 func duplicate_tile(data):
 	spawn_tile(data, false)
