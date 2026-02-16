@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_pe4h5"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_qmjig"]
+
+[sub_resource type="Resource" id="Resource_tj3so"]
+script = ExtResource("2_qmjig")
+tile_size = Vector2(300, 500)
+start_position = Vector2(946, 356.4)
+side_colours = {
+"east": ["green", "green", "red", "green", "green"],
+"north": ["blue", "blue", "green"],
+"south": ["yellow", "red", "red"],
+"west": ["yellow", "blue", "yellow", "red", "yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_ls6kb"]
+script = ExtResource("2_qmjig")
+tile_size = Vector2(200, 500)
+start_position = Vector2(1196, 356.4)
+side_colours = {
+"east": ["red", "red", "green", "green", "red"],
+"north": ["blue", "blue"],
+"south": ["blue", "green"],
+"west": ["green", "green", "red", "green", "green"]
+}
+
+[resource]
+script = ExtResource("1_pe4h5")
+puzzle_name = "generated_2026-02-15T16:00:10"
+tiles = Array[ExtResource("2_qmjig")]([SubResource("Resource_tj3so"), SubResource("Resource_ls6kb")])
+board_size = Vector2(500, 500)
+board_colours = {
+"east": ["red", "red", "green", "green", "red"],
+"north": ["blue", "blue", "green", "blue", "blue"],
+"south": ["yellow", "red", "red", "blue", "green"],
+"west": ["yellow", "blue", "yellow", "red", "yellow"]
+}

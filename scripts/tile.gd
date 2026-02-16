@@ -1,13 +1,9 @@
 extends Area2D
 
-var epsilon = 25
+var data: TileInfo
 var tile_size = Vector2(100,100)
 var dragging = false
 var drag_offset = Vector2.ZERO
-var connect = null
-var connectedTile = null
-var group = null 
-var is_selected = false
 
 var side_colours = {
 	"north" = [],
@@ -16,8 +12,11 @@ var side_colours = {
 	"west" = []
 }
 
-var data: TileInfo
-
+var connect = null
+var connectedTile = null
+var group = null 
+var is_selected = false
+var tile_hover = false
 var handle_dragging = false
 var handle_drag_offset := Vector2.ZERO
 var handle_active = null
@@ -26,17 +25,22 @@ var snap_length = 0
 var snap_dir = null
 var not_equal = false
 
+# snapping size tolerance
+var absolute_tolerance = 5.0
+var relative_tolerance = 0.10
+
 @onready var TileGroupScene = preload("res://scenes/tile_group.tscn")
+@onready var puzzleManager = get_node("/root/Main/PuzzleManager")
 @onready var sprite2d: Sprite2D  = $Sprite2D
 @onready var collishape: CollisionShape2D = $CollisionShape2D
 @onready var button: Button = $Button
 @onready var connectSound: AudioStreamPlayer = null
 @onready var disconnectSound: AudioStreamPlayer = null
-@onready var puzzleManager = get_node("/root/Main/PuzzleManager")
 
 func _ready():
 	disconnectSound = get_tree().get_first_node_in_group("disconnect_sfx")
 	connectSound = get_tree().get_first_node_in_group("connect_sfx")
+	button.mouse_default_cursor_shape = Control.CURSOR_MOVE
 
 func init_tile(
 	myData: TileInfo,
@@ -44,6 +48,7 @@ func init_tile(
 	_tile_size: Vector2,
 	side_clrs: Dictionary
 ):
+	# create tile according to tile data
 	data = myData
 	tile_size = _tile_size
 	position = pos
@@ -51,11 +56,14 @@ func init_tile(
 	rect.size = tile_size
 	collishape.shape = rect
 	button.custom_minimum_size = tile_size
+	button.z_index = 15
 	side_colours = side_clrs
+	
 	draw_triangles(side_colours, tile_size)
 	create_resize_handles()
 
 func create_resize_handles():
+	# create 8 handles for resizing
 	var handles = Node2D.new()
 	handles.z_index = 10
 	handles.name = "ResizeHandles"
@@ -86,13 +94,31 @@ func create_resize_handles():
 		var rect_vis = ColorRect.new()
 		rect_vis.color = Color(0.25,0.25,0.25,0.25)
 		rect_vis.size = Vector2(20, 20)           
-		rect_vis.mouse_filter = Control.MOUSE_FILTER_IGNORE # allow clicks to pass
+		rect_vis.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		handle.add_child(rect_vis)
 		rect_vis.position = -rect_vis.size / 2      # center it on handle
 		
 		handle.position = positions[dir]
 		handle.set_meta("direction", dir)
 		handle.connect("input_event", Callable(self, "_on_handle_input").bind(handle))
+		handle.mouse_entered.connect(_on_handle_mouse_entered.bind(handle))
+		handle.mouse_exited.connect(_on_handle_mouse_exited)
+
+func _on_handle_mouse_entered(handle):
+	var dir = handle.get_meta("direction")
+	
+	match dir:
+		"east", "west":
+			Input.set_default_cursor_shape(Input.CURSOR_HSIZE)
+		"north", "south":
+			Input.set_default_cursor_shape(Input.CURSOR_VSIZE)
+		"ne", "sw":
+			Input.set_default_cursor_shape(Input.CURSOR_BDIAGSIZE)
+		"nw", "se":
+			Input.set_default_cursor_shape(Input.CURSOR_FDIAGSIZE)
+
+func _on_handle_mouse_exited():
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 func _get_anchor_local(dir: String) -> Vector2:
 	var half = tile_size / 2
@@ -218,8 +244,6 @@ func draw_triangles(side_colours: Dictionary, tile_size: Vector2):
 			segment.connect("area_entered", Callable(self, "_on_segment_area_entered").bind(segment))
 			segment.connect("area_exited", Callable(self, "_on_segment_area_exited").bind(segment))
 			
-
-			
 			var midpoint = (a + b) / 2 + (sides[dir] * (square.size/3))
 			segment.position = midpoint
 			segment.set_meta("midpoint", midpoint)
@@ -258,6 +282,7 @@ func _on_button_button_down() -> void:
 				group.remove_tile(self)
 			disconnectSound.play()
 	
+	Input.set_default_cursor_shape(Input.CURSOR_CAN_DROP)
 	dragging = true
 	if get_parent().is_in_group("tile_group"):
 		# calculate offset from the group's position 
@@ -315,35 +340,61 @@ func delete_tile():
 	puzzleManager.set_selected_tile(null)
 	_update_selection_visual()
 
+func set_cursor():
+	if dragging:
+		Input.set_default_cursor_shape(Input.CURSOR_CAN_DROP)
+	elif tile_hover:
+		Input.set_default_cursor_shape(Input.CURSOR_MOVE)
+	else:
+		Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+
+func _apply_snap_position(target_global: Vector2):
+	if get_parent().is_in_group("tile_group"):
+		var group = get_parent()
+		var offset = global_position - group.global_position
+		group.global_position = target_global - offset
+	else:
+		global_position = target_global
+
 func _on_button_button_up() -> void:
 	dragging = false
-	
+	set_cursor()
+	var targroup
+	# check if tile is set to connect to something
 	if connect != null:
+		# check if its connecting to a tile
 		if connectedTile != null:
-			global_position = connect
 			
+			# set new position, save global transform
+			_apply_snap_position(connect)
 			var old_global = global_transform
-			group = null
 			
-			if connectedTile.get_parent().is_in_group("tile_group"):
-				group = connectedTile.get_parent()
+			if connectedTile.get_parent().is_in_group("tile_group") and not self.get_parent().is_in_group("tile_group"):
+				# add self to other group 
+				targroup = connectedTile.get_parent()
+				targroup.add_tile(self)
+				global_transform = old_global
+				connectSound.play()
+			elif self.get_parent().is_in_group("tile_group") and not connectedTile.get_parent().is_in_group("tile_group"):
+				targroup = get_parent()
+				targroup.add_tile(connectedTile)
+				global_transform = old_global
+				connectSound.play()
+			elif self.get_parent().is_in_group("tile_group") and  connectedTile.get_parent().is_in_group("tile_group"):
+				merge_with_group(connectedTile.get_parent(),self.get_parent())
 			else:
-				group = TileGroupScene.instantiate()
-				group.add_to_group("tile_group")
+				targroup = TileGroupScene.instantiate()
+				targroup.add_to_group("tile_group")
 				var parent = connectedTile.get_parent()
-				parent.add_child(group)
-				group.global_position = connectedTile.global_position
-				group.add_tile(connectedTile)
-			
-			group.add_tile(self)
-			global_transform = old_global
-			connectSound.play()
-		
+				parent.add_child(targroup)
+				targroup.global_position = connectedTile.global_position
+				targroup.add_tile(connectedTile)
+				targroup.add_tile(self)
 			if not_equal:
 				_snap_resize(snap_length, snap_dir)
 			
 		else:
-			global_position = connect
+			_apply_snap_position(connect)
 			print("connecting to board")
 			connectSound.play()  
 			
@@ -356,12 +407,22 @@ func _on_button_button_up() -> void:
 						line.width = 2.0
 						line.visible = false
 		
-		# Reset snapping state
+		# reset snapping state
 		connect = null
 		connectedTile = null
 		not_equal = false
 		snap_dir = null
 		snap_length = 0
+
+
+
+func merge_with_group(source_group: Node2D, target_group: Node2D):
+	var tiles_to_move = source_group.get_tiles().duplicate()
+	for tile in tiles_to_move:
+		source_group.remove_tile(tile)  
+		target_group.add_tile(tile)     
+		
+	#TODO adjust group position 
 
 func clamp_to_board():
 	var board := get_tree().get_first_node_in_group("puzzle_board")
@@ -371,12 +432,12 @@ func clamp_to_board():
 	if get_parent().is_in_group("tile_group"):
 		var group = get_parent()
 		var bounds = group.get_global_bounds()
-		var offset = group.global_position - bounds.position  # distance from bounds origin to group origin
-
+		var offset = group.global_position - bounds.position  
+		
 		var board_min = board.global_position - board.board_size / 2
 		var board_max = board.global_position + board.board_size / 2
 
-		# Compute clamped top-left so the bottom-right also stays inside the board
+		# compute clamped top-left so the bottom-right also stays inside the board
 		var clamped_x = clamp(bounds.position.x, board_min.x, board_max.x - bounds.size.x)
 		var clamped_y = clamp(bounds.position.y, board_min.y, board_max.y - bounds.size.y)
 
@@ -399,8 +460,11 @@ func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 		
 		if not (is_tile or is_board):
 			return
-			
-		if is_tile and area.has_meta("direction") and is_approximately_equal(area.get_meta("seg_length"), my_segment.get_meta("seg_length"), epsilon):
+		
+		# if area encountered belongs to a board or tile segment, 
+		# is approximately the same length, and is the same colour, set
+		# 'connect' to the position tile will snap to.
+		if is_tile and area.has_meta("direction") and is_approximately_equal(area.get_meta("seg_length"), my_segment.get_meta("seg_length")):
 			if area.get_meta("colour") == my_segment.get_meta("colour"):
 				connectedTile = area.get_meta("parent_tile")
 				var dir = area.get_meta("direction")
@@ -408,7 +472,6 @@ func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 				var other_mid = area.global_position
 				var my_mid = my_segment.global_position
 				var target_pos = other_mid
-				
 				var other_size = connectedTile.tile_size
 				var this_size = tile_size
 				
@@ -423,9 +486,10 @@ func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 						offset = Vector2(-5, 0)
 					"west":
 						offset = Vector2(5, 0)
-
+				
 				connect = global_position + (other_mid - my_mid) + offset
 				
+				# make segments glow when connectable
 				var line = area.get_parent().get_node("Outline")
 				var line2 = my_segment.get_parent().get_node("Outline")
 				line.default_color = Color.AQUA
@@ -433,6 +497,7 @@ func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 				line2.default_color = Color.AQUA
 				line2.width = 4.0
 				
+				# if segments are not exactly equal, set 'not_equal' ready for resize
 				snap_length = area.get_meta("seg_length")
 				snap_dir = dir
 				if not area.get_meta("seg_length") == my_segment.get_meta("seg_length"):
@@ -446,10 +511,9 @@ func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
 	if not dragging:
 		return
 	
-	# debug print
 	var board_len = board_segment.get_meta("seg_length")
 	var my_len = my_segment.get_meta("seg_length")
-	print("DEBUG: board seg_len =", board_len, "my seg_len =", my_len, "diff =", abs(board_len - my_len), "epsilon =", epsilon)
+	print("DEBUG: board seg_len =", board_len, "my seg_len =", my_len, "diff =", abs(board_len - my_len))
 	print("board colour: " , board_segment.get_meta("colour") , " seg colour: " , my_segment.get_meta("colour"))
 	
 	# colour must match
@@ -459,7 +523,7 @@ func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
 	print("colours match.")
 
 	# segment length must roughly match
-	if not is_approximately_equal(board_len, my_len, epsilon):
+	if not is_approximately_equal(board_len, my_len):
 		print("lengths mismatch, skipping snap")
 		return
 	print("lengths match.")
@@ -495,12 +559,12 @@ func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
 	connect = target
 	print("DEBUG: connect set for segment at ", connect)
 
-
 func _on_segment_area_exited(area: Area2D, my_segment: Area2D) -> void:
+	# reset connect variables
 	connect = null
-	if dragging:
-		connectedTile = null
-		
+	connectedTile = null
+	
+	# set outline colours back to default
 	if area.get_parent().has_node("Outline"):
 		var line = area.get_parent().get_node("Outline")
 		line.default_color = Color.WHITE
@@ -524,6 +588,7 @@ func _on_handle_input(viewport, event, shape_idx, handle):
 			handle_drag_offset = mouse_local - handle.position
 			resizing = true
 		else:
+			Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 			handle_dragging = false
 			handle_active = null
 			resizing = false
@@ -612,9 +677,6 @@ func _unhandled_input(event):
 
 
 func _snap_resize(other_segment_length, dir):
-	print("resizing ", dir)
-	print("other seg length: ", other_segment_length)
-	
 	match dir:
 		"north":
 			dir = "south"
@@ -634,10 +696,6 @@ func _snap_resize(other_segment_length, dir):
 		"east", "west":
 			new_size.y = other_segment_length * my_count
 	
-	print("my seg count:", my_count)
-	print("new length: ", other_segment_length, "*", my_count)
-	print("new size: ", new_size)
-	
 	# apply new size
 	tile_size = new_size
 	collishape.shape.set("size", tile_size)
@@ -650,10 +708,15 @@ func _snap_resize(other_segment_length, dir):
 	snap_dir = null
 	snap_length = 0
 
-
-func is_approximately_equal(num1, num2, epsilon):
+func is_approximately_equal(num1, num2):
 	var diff = abs(num1 - num2)
-	if diff < epsilon:
-		return true
-	else:
-		return false
+	var allowed = max(relative_tolerance * max(abs(num1), abs(num2)), absolute_tolerance)
+	return diff <= allowed
+
+func _on_button_mouse_entered() -> void:
+	tile_hover = true
+	set_cursor()
+
+func _on_button_mouse_exited() -> void:
+	tile_hover = false
+	set_cursor()

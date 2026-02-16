@@ -1,0 +1,3 @@
+[gd_scene format=3 uid="uid://mmgpxp8qriok"]
+
+[node name="PuzzleControls" type="Node2D"]

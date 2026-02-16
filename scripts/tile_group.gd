@@ -4,12 +4,14 @@ var tiles: Array = []
 
 func add_tile(tile: Area2D):
 	if tile not in tiles:
+		print("Adding tile:", tile) 
 		tiles.append(tile)
 		tile.reparent(self)
 		tile.group = self
 
 func remove_tile(tile: Area2D):
 	if tile in tiles:
+		print("Removing tile:", tile)
 		tiles.erase(tile)
 		tile.group = null
 		var tiles_parent = get_tree().get_root().get_node("Main/Tiles")
@@ -21,7 +23,9 @@ func remove_tile(tile: Area2D):
 			queue_free()
 
 func get_tiles():
+	print("Tiles in group:", tiles.size())  # Debugging print to track the number of tiles in the group
 	return tiles
+
 
 func get_size() -> Vector2:
 	if tiles.is_empty():
