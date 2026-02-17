@@ -2,51 +2,23 @@ extends Node2D
 
 @onready var tiles = $Tiles
 @onready var tile_scene = preload("res://scenes/tile.tscn")
-
-var colours = ["red", "blue", "green", "yellow"]
-
-var tile_size: Vector2 = Vector2(100,100)
-var tile_size2: Vector2 = Vector2(100,100)
-
 @onready var puzzleManager = $PuzzleManager
-
-var side_clrs = {
-		"north" = [colours.pick_random(), colours.pick_random()],
-		"east" = [colours.pick_random(), colours.pick_random(),colours.pick_random()],
-		"south" = [colours.pick_random()],
-		"west" = [colours.pick_random()]
-		}
+var main_menu_scene = preload("res://ui/MainMenu.tscn")
 
 func _ready():
 	puzzleManager.tile_root = $Tiles
-	var canvas := CanvasLayer.new()
-	add_child(canvas)
+	puzzleManager.request_main_menu.connect(_show_main_menu)
+	_show_main_menu()
+
+func _show_main_menu():
+	clear_all_ui()
 	
-	var ui := Control.new()
-	ui.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	canvas.add_child(ui)
+	var menu = main_menu_scene.instantiate()
+	menu.name = "MainMenu"
+	add_child(menu)
 	
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	ui.add_child(center)
-	
-	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 20)
-	center.add_child(vbox)
-	
-	var author_btn := Button.new()
-	author_btn.text = "Author Mode"
-	author_btn.custom_minimum_size = Vector2(220, 64)
-	vbox.add_child(author_btn)
-	
-	var play_btn := Button.new()
-	play_btn.text = "Play"
-	play_btn.custom_minimum_size = Vector2(220, 64)
-	vbox.add_child(play_btn)
-	
-	author_btn.pressed.connect(_on_author_pressed)
-	play_btn.pressed.connect(_on_play_pressed)
+	menu.author_pressed.connect(_on_author_pressed)
+	menu.play_pressed.connect(_on_play_pressed)
 
 func _on_author_pressed():
 	clear_all_ui()

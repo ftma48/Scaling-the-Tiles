@@ -1,3 +1,42 @@
-[gd_scene format=3 uid="uid://mmgpxp8qriok"]
+[gd_scene load_steps=2 format=3 uid="uid://cwdagh4o3348v"]
 
-[node name="PuzzleControls" type="Node2D"]
+[ext_resource type="Script" uid="uid://btb6pdrmbsbwj" path="res://ui/puzzle_controls.gd" id="1_vh03h"]
+
+[node name="PuzzleControls" type="CanvasLayer"]
+script = ExtResource("1_vh03h")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SolveButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Solve Puzzle"
+
+[node name="ResetButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reset Puzzle"
+
+[node name="DuplicateButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Duplicate"
+
+[node name="DeleteButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Delete"
+
+[node name="BackButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back"

@@ -1,3 +1,50 @@
-[gd_scene format=3 uid="uid://05bm1awyteuk"]
+[gd_scene load_steps=2 format=3 uid="uid://05bm1awyteuk"]
 
-[node name="PlayUi" type="Node2D"]
+[ext_resource type="Script" uid="uid://6x5na37xfvnj" path="res://ui/play_ui.gd" id="1_mado1"]
+
+[node name="PlayUI" type="CanvasLayer"]
+script = ExtResource("1_mado1")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer"]
+layout_mode = 2
+
+[node name="Puzzle1Button" type="Button" parent="Control/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Puzzle 1"
+
+[node name="Puzzle2Button" type="Button" parent="Control/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Puzzle 2"
+
+[node name="Puzzle3Button" type="Button" parent="Control/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Puzzle 3"
+
+[node name="GenerateButton" type="Button" parent="Control/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Generate New Puzzle"
+
+[node name="BackButton" type="Button" parent="Control/CenterContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back"

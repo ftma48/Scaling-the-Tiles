@@ -5,115 +5,80 @@ var mode = "START"
 
 @onready var tile_scene = preload("res://scenes/tile.tscn")
 @onready var tile_root: Node2D
-
-var colours = ["red", "blue", "green", "yellow"]
+var play_ui_scene = preload("res://ui/PlayUI.tscn")
+var author_ui_scene = preload("res://ui/AuthorUI.tscn")
+var puzzle_controls_scene = preload("res://ui/PuzzleControls.tscn")
 var default_tile_data = preload("res://resources/default_tile_data.tres")
+
 var current_puzzle: PuzzleData
 var tiles := []
 var selected_tile: Node2D
+
 var duplicate_button
 var delete_button
+
 var only_unique = true
 var board_size
 var board_colours
 var generated_puzzle
+signal request_main_menu
 
 func play_mode():
 	if has_node("PlayUI"):
 		return
 	
-	get_parent().clear_all_ui()
 	clear_ui()
 	mode = "PLAY"
+	
+	var ui = play_ui_scene.instantiate()
+	add_child(ui)
+	
+	ui.puzzle_selected.connect(_on_play_puzzle_selected)
+	ui.generate_pressed.connect(_on_generate_pressed)
+	ui.back_pressed.connect(_on_back_pressed)
+
+func _on_play_puzzle_selected(index):
+	var ui = get_node_or_null("PlayUI")
+	if ui:
+		ui.queue_free()
+	
+	
+	match index:
+		1: load_puzzle(load("res://puzzles/puzzle_2026-01-26T10-56-35.tres"))
+		2: load_puzzle(load("res://puzzles/puzzle_2026-01-26T11-06-01.tres"))
+		3: load_puzzle(generated_puzzle)
 	
 	var board := get_node("/root/Main/PuzzleBoard")
 	board.show_board()
 	
-	var canvas := CanvasLayer.new()
-	canvas.name = "PlayUI"
-	add_child(canvas)
-	
-	var root := Control.new()
-	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	canvas.add_child(root)
-	
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	root.add_child(center)
-	
-	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 20)
-	center.add_child(vbox)
-	
-	vbox.add_child(_make_button("Puzzle 1", func():
-		get_node("PlayUI").queue_free()
-		load_puzzle(load("res://puzzles/puzzle_2026-01-26T10-56-35.tres"))
-		_show_puzzle_controls()
-	))
-	
-	vbox.add_child(_make_button("Puzzle 2", func():
-		get_node("PlayUI").queue_free()
-		load_puzzle(load("res://puzzles/puzzle_2026-01-26T11-06-01.tres"))
-		_show_puzzle_controls()
-	))
-	
-	vbox.add_child(_make_button("Puzzle 3", func():
-		get_node("PlayUI").queue_free()
-		load_puzzle(generated_puzzle)
-		_show_puzzle_controls()
-	))
-	
-	vbox.add_child(_make_button("generate puzzle", func():
-		var puzzle_generator = get_tree().get_first_node_in_group("puzzle_generator")
-		generated_puzzle = puzzle_generator.generate_puzzle()
-	))
-	
-	vbox.add_child(_make_button("Back", _on_back_pressed))
+	_show_puzzle_controls()
+
+func _on_generate_pressed():
+	var puzzle_generator = get_tree().get_first_node_in_group("puzzle_generator")
+	generated_puzzle = puzzle_generator.generate_puzzle()
 
 func author_mode():
 	if has_node("AuthorUI"):
 		return
 	
-	get_parent().clear_all_ui()
 	clear_ui()
 	mode = "AUTHOR"
 	
 	var board := get_node("/root/Main/PuzzleBoard")
 	board.show_board()
 	
-	var canvas := CanvasLayer.new()
-	canvas.name = "AuthorUI"
-	add_child(canvas)
+	var ui = author_ui_scene.instantiate()
+	add_child(ui)
 	
-	var root := Control.new()
-	root.anchor_right = 0
-	root.anchor_bottom = 0
-	root.offset_left = 10
-	root.offset_top = 10
-	canvas.add_child(root)
-	
-	# Layout
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	vbox.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	root.add_child(vbox)
-	
-	# Buttons
-	vbox.add_child(_make_button("Edit Board", _on_edit_board_pressed))
-	vbox.add_child(_make_button("Add Tile", _on_add_tile_pressed))
-	vbox.add_child(_make_button("Save Puzzle", _on_save_puzzle_pressed))
-	vbox.add_child(_make_button("Load Puzzle", _on_load_puzzle_pressed))
-	vbox.add_child(_make_button("Solve Puzzle", _on_solve_puzzle_pressed))
-	vbox.add_child(_make_button("Clear", _on_clear_pressed))
-	
-	duplicate_button = _make_button("Duplicate", _on_duplicate_pressed)
-	vbox.add_child(duplicate_button)
-
-	delete_button = _make_button("Delete", _on_delete_pressed)
-	vbox.add_child(delete_button)
-	
-	vbox.add_child(_make_button("Back", _on_back_pressed))
+	ui.edit_board.connect(_on_edit_board_pressed)
+	ui.add_tile.connect(_on_add_tile_pressed)
+	ui.save.connect(_on_save_puzzle_pressed)
+	ui.load.connect(_on_load_puzzle_pressed)
+	ui.solve.connect(_on_solve_puzzle_pressed)
+	ui.clear.connect(_on_clear_pressed)
+	ui.duplicate.connect(_on_duplicate_pressed)
+	ui.delete.connect(_on_delete_pressed)
+	ui.back.connect(_on_back_pressed)
 
 func clear_ui():
 	for child in get_children():
@@ -121,39 +86,26 @@ func clear_ui():
 			child.queue_free()
 
 func _show_puzzle_controls():
-	if not has_node("LeftPlayUI"):
-		var left_canvas := CanvasLayer.new()
-		left_canvas.name = "LeftPlayUI"
-		add_child(left_canvas)
-		
-		var left_root := Control.new()
-		left_root.anchor_left = 0
-		left_root.anchor_top = 0
-		left_root.offset_left = 10
-		left_root.offset_top = 10
-		left_canvas.add_child(left_root)
-		
-		var left_vbox := VBoxContainer.new()
-		left_vbox.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		left_vbox.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		left_root.add_child(left_vbox)
-		
-		duplicate_button = _make_button("Duplicate", _on_duplicate_pressed)
-		left_vbox.add_child(duplicate_button)
+	if has_node("PuzzleControls"):
+		return
+	
+	var controls = puzzle_controls_scene.instantiate()
+	controls.name = "PuzzleControls"
+	add_child(controls)
+	
+	# connect signals
+	controls.solve.connect(_on_solve_puzzle_pressed)
+	controls.reset.connect(_on_reset_pressed)
+	controls.duplicate.connect(_on_duplicate_pressed)
+	controls.delete.connect(_on_delete_pressed)
+	controls.back.connect(_on_back_pressed)
+	
+	duplicate_button = controls.duplicate_button
+	delete_button = controls.delete_button
+	
+	_update_selection_ui()
 
-		delete_button = _make_button("Delete", _on_delete_pressed)
-		left_vbox.add_child(delete_button)
-		
-		left_vbox.add_child(_make_button("Solve Puzzle", _on_solve_puzzle_pressed))
-		left_vbox.add_child(_make_button("Back", _on_back_pressed))
-
-func _make_button(text: String, callback: Callable) -> Button:
-	var btn := Button.new()
-	btn.text = text
-	btn.pressed.connect(callback)
-	return btn
-
-func load_puzzle(puzzle: PuzzleData):
+func load_puzzle(puzzle: PuzzleData, solved: bool = false):
 	clear_puzzle()
 	current_puzzle = puzzle
 	
@@ -166,16 +118,20 @@ func load_puzzle(puzzle: PuzzleData):
 	
 	var seen := {}
 	
-	if only_unique:
+	if solved:
 		for tile_data in puzzle.tiles:
-			var sig = _side_colours_signature(tile_data.side_colours)
-			if seen.has(sig):
-				continue
-			seen[sig] = true
-			spawn_tile(tile_data, true)
+			spawn_tile(tile_data, false)
 	else:
-		for tile_data in puzzle.tiles:
-			spawn_tile(tile_data, true)
+		if only_unique:
+			for tile_data in puzzle.tiles:
+				var sig = _side_colours_signature(tile_data.side_colours)
+				if seen.has(sig):
+					continue
+				seen[sig] = true
+				spawn_tile(tile_data, true)
+		else:
+			for tile_data in puzzle.tiles:
+				spawn_tile(tile_data, true)
 
 
 func spawn_tile(data, randomise):
@@ -486,13 +442,13 @@ func _on_load_puzzle_pressed():
 	load_puzzle(load("res://puzzles/puzzle_2026-01-26T11-06-01.tres"))
 
 func _on_solve_puzzle_pressed():
-	clear_puzzle()
-	var puzzle = current_puzzle
-	for tile_data in puzzle.tiles:
-		spawn_tile(tile_data, false)
+	load_puzzle(current_puzzle, true)
 
 func _on_clear_pressed():
 	clear_puzzle()
+
+func _on_reset_pressed():
+	load_puzzle(current_puzzle)
 
 func _on_duplicate_pressed():
 	if selected_tile:
@@ -510,12 +466,11 @@ func _on_delete_pressed():
 func _on_back_pressed():
 	var board := get_node("/root/Main/PuzzleBoard")
 	board.hide_board()
-	get_parent().clear_all_ui()
+	
 	clear_ui()
 	clear_puzzle()
-	var mainMenu = get_tree().root.get_node("Main")
-	mainMenu.clear_all_ui()
-	mainMenu._ready() 
+	
+	request_main_menu.emit()
 
 func remove_tile_from_puzzle(tile_to_remove: Node2D):
 	tiles.erase(tile_to_remove)

@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_ul1vw"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_1xx62"]
+
+[sub_resource type="Resource" id="Resource_0cmmp"]
+script = ExtResource("2_1xx62")
+tile_size = Vector2(500, 500)
+start_position = Vector2(325.5, 324)
+side_colours = {
+"east": ["blue", "blue"],
+"north": ["green"],
+"south": ["green"],
+"west": ["yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_p6t8p"]
+script = ExtResource("2_1xx62")
+tile_size = Vector2(500, 250)
+start_position = Vector2(827.167, 199)
+side_colours = {
+"east": ["blue"],
+"north": ["red"],
+"south": ["red"],
+"west": ["blue"]
+}
+
+[sub_resource type="Resource" id="Resource_wg4a5"]
+script = ExtResource("2_1xx62")
+tile_size = Vector2(500, 250)
+start_position = Vector2(827.167, 449)
+side_colours = {
+"east": ["blue"],
+"north": ["red"],
+"south": ["red"],
+"west": ["blue"]
+}
+
+[resource]
+script = ExtResource("1_ul1vw")
+puzzle_name = "2026-02-16T16-16-57"
+tiles = [SubResource("Resource_0cmmp"), SubResource("Resource_p6t8p"), SubResource("Resource_wg4a5")]
+board_size = Vector2(1000, 500)
+board_colours = {
+"east": ["blue", "blue"],
+"north": ["green", "red"],
+"south": ["green", "red"],
+"west": ["yellow"]
+}

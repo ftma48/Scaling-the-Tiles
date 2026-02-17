@@ -1,3 +1,62 @@
-[gd_scene format=3 uid="uid://d1gan7lblq38t"]
+[gd_scene load_steps=2 format=3 uid="uid://d1gan7lblq38t"]
 
-[node name="AuthorUi" type="Node2D"]
+[ext_resource type="Script" uid="uid://cqqvq286fsn3t" path="res://ui/author_ui.gd" id="1_ifrxn"]
+
+[node name="AuthorUI" type="CanvasLayer"]
+script = ExtResource("1_ifrxn")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="EditBoardButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Edit Board"
+
+[node name="AddTileButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Add Tile"
+
+[node name="SaveButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Save Puzzle"
+
+[node name="LoadButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Load Puzzle"
+
+[node name="SolveButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Solve Puzzle"
+
+[node name="ClearButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Clear Puzzle"
+
+[node name="DuplicateButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Duplicate"
+
+[node name="DeleteButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Delete"
+
+[node name="BackButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Back"
