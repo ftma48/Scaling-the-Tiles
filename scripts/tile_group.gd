@@ -30,7 +30,7 @@ func get_tiles():
 func get_size() -> Vector2:
 	if tiles.is_empty():
 		return Vector2.ZERO
-
+	
 	var min := Vector2.INF
 	var max := -Vector2.INF
 	

@@ -414,8 +414,6 @@ func _on_button_button_up() -> void:
 		snap_dir = null
 		snap_length = 0
 
-
-
 func merge_with_group(source_group: Node2D, target_group: Node2D):
 	var tiles_to_move = source_group.get_tiles().duplicate()
 	for tile in tiles_to_move:
@@ -428,7 +426,7 @@ func clamp_to_board():
 	var board := get_tree().get_first_node_in_group("puzzle_board")
 	if board == null:
 		return
-
+	
 	if get_parent().is_in_group("tile_group"):
 		var group = get_parent()
 		var bounds = group.get_global_bounds()
@@ -436,17 +434,17 @@ func clamp_to_board():
 		
 		var board_min = board.global_position - board.board_size / 2
 		var board_max = board.global_position + board.board_size / 2
-
+		
 		# compute clamped top-left so the bottom-right also stays inside the board
 		var clamped_x = clamp(bounds.position.x, board_min.x, board_max.x - bounds.size.x)
 		var clamped_y = clamp(bounds.position.y, board_min.y, board_max.y - bounds.size.y)
-
+		
 		group.global_position = Vector2(clamped_x, clamped_y) + offset
 	else:
 		var half = tile_size / 2
 		var board_min = board.global_position - board.board_size / 2 + half
 		var board_max = board.global_position + board.board_size / 2 - half
-
+		
 		global_position = Vector2(
 			clamp(global_position.x, board_min.x, board_max.x),
 			clamp(global_position.y, board_min.y, board_max.y)
