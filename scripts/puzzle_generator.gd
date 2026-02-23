@@ -1,15 +1,18 @@
 extends Node
 class_name PuzzleGenerator
 
-@export var unit_grid_size := Vector2i(5, 5)
 @export var colours := ["red", "blue", "green", "yellow"]
-@export var seed := 0
+@export var unit_grid_size := Vector2i(6, 6)
 @export var unit_world_size := Vector2(100, 100)
 @export var solution_origin := Vector2(0, 0)
+@export var seed := 0
+
+@export var min_tile_size := Vector2i(1, 1)
+@export var max_depth := 4
+@export var split_stop_chance := 0.25
 
 var tile_regions: Array[Rect2i] = []
 var generated_tiles: Array[TileInfo] = []
-
 var rng := RandomNumberGenerator.new()
 var vertical_boundaries := []
 var horizontal_boundaries := []
@@ -85,23 +88,83 @@ func _debug_print_boundaries():
 		print(row)
 
 func _partition_into_tiles():
+	print("STARTING BSP")
 	tile_regions.clear()
+	var root = Rect2i(0, 0, unit_grid_size.x, unit_grid_size.y)
+	_bsp_split(root, 0)
 
-	var occupied := []
-	for x in range(unit_grid_size.x):
-		var col := []
-		for y in range(unit_grid_size.y):
-			col.append(false)
-		occupied.append(col)
+func _bsp_split(region: Rect2i, depth: int):
+	# recursive function splits grid into two repeatedly
+	if _should_stop(region, depth):
+		print("ENDING SPLIT")
+		tile_regions.append(region)
+		return
+	
+	var split = _choose_split(region)
+	if split == null:
+		print("ENDING SPLIT")
+		tile_regions.append(region)
+		return
+	
+	print("SPLIT ", depth, " COMPLETE, MOVING TO NEXT")
+	_bsp_split(split.a, depth + 1)
+	_bsp_split(split.b, depth + 1)
 
-	for y in range(unit_grid_size.y):
-		for x in range(unit_grid_size.x):
-			if occupied[x][y]:
-				continue
+func _should_stop(region: Rect2i, depth: int) -> bool:
+	# determines whether bsp should end based on depth of recursion, remaining area size, and rng
+	if depth >= max_depth:
+		print("DEPTH EXCEEDED")
+		return true
+	
+	var can_split_h = region.size.y >= min_tile_size.y * 2
+	var can_split_v = region.size.x >= min_tile_size.x * 2
+	
+	if not can_split_h and not can_split_v:
+		print("REGIONS TOO SMALL")
+		return true
+	
+	if depth > 1:
+		return rng.randf() < split_stop_chance 
+	
+	return false
 
-			var region = _grow_rectangle_from(x, y, occupied)
-			tile_regions.append(region)
-			_mark_region(region, occupied)
+func _choose_split(region: Rect2i):
+	# choose axis to split along, favouring the longer one
+	var can_split_h = region.size.y >= min_tile_size.y * 2
+	var can_split_v = region.size.x >= min_tile_size.x * 2
+	
+	var split_vertical = false
+	
+	if can_split_h and can_split_v:
+		if region.size.x > region.size.y:
+			split_vertical = rng.randf() < 0.7
+		else:
+			split_vertical = rng.randf() < 0.3
+	elif can_split_v:
+		split_vertical = true
+	elif can_split_h:
+		split_vertical = false
+	else:
+		return null
+		
+	if split_vertical:
+		print("SPLITTING VERTICALLY")
+		var min_x = min_tile_size.x
+		var max_x = region.size.x - min_tile_size.x
+		var split_x = rng.randi_range(min_x, max_x)
+		
+		var a = Rect2i(region.position, Vector2i(split_x, region.size.y))
+		var b = Rect2i(region.position + Vector2i(split_x, 0), Vector2i(region.size.x - split_x, region.size.y))
+		return { "a": a, "b": b }
+	else:
+		print("SPLITTING HORIZONTALLY")
+		var min_y = min_tile_size.y
+		var max_y = region.size.y - min_tile_size.y
+		var split_y = rng.randi_range(min_y, max_y)
+
+		var a = Rect2i(region.position, Vector2i(region.size.x, split_y))
+		var b = Rect2i(region.position + Vector2i(0, split_y), Vector2i(region.size.x, region.size.y - split_y))
+		return { "a": a, "b": b }
 
 func _grow_rectangle_from(start_x: int, start_y: int, occupied) -> Rect2i:
 	var max_width := unit_grid_size.x - start_x

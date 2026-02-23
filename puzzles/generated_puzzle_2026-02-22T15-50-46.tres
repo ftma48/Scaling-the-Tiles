@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_vvgvx"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_52m4l"]
+
+[sub_resource type="Resource" id="Resource_hbdvs"]
+script = ExtResource("2_52m4l")
+tile_size = Vector2(500, 300)
+start_position = Vector2(1046, 256.4)
+side_colours = {
+"east": ["green", "red", "red"],
+"north": ["yellow", "blue", "green", "red", "blue"],
+"south": ["red", "blue", "yellow", "red", "yellow"],
+"west": ["green", "green", "yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_qn7gq"]
+script = ExtResource("2_52m4l")
+tile_size = Vector2(300, 100)
+start_position = Vector2(946, 456.4)
+side_colours = {
+"east": ["green"],
+"north": ["red", "blue", "yellow"],
+"south": ["yellow", "blue", "green"],
+"west": ["blue"]
+}
+
+[sub_resource type="Resource" id="Resource_vavg5"]
+script = ExtResource("2_52m4l")
+tile_size = Vector2(200, 100)
+start_position = Vector2(896, 556.4)
+side_colours = {
+"east": ["green"],
+"north": ["yellow", "blue"],
+"south": ["blue", "blue"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_7p88r"]
+script = ExtResource("2_52m4l")
+tile_size = Vector2(100, 100)
+start_position = Vector2(1046, 556.4)
+side_colours = {
+"east": ["blue"],
+"north": ["green"],
+"south": ["red"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_aykxr"]
+script = ExtResource("2_52m4l")
+tile_size = Vector2(200, 200)
+start_position = Vector2(1196, 506.4)
+side_colours = {
+"east": ["red", "green"],
+"north": ["red", "yellow"],
+"south": ["red", "blue"],
+"west": ["green", "blue"]
+}
+
+[resource]
+script = ExtResource("1_vvgvx")
+puzzle_name = "generated_2026-02-22T15:50:46"
+tiles = Array[ExtResource("2_52m4l")]([SubResource("Resource_hbdvs"), SubResource("Resource_qn7gq"), SubResource("Resource_vavg5"), SubResource("Resource_7p88r"), SubResource("Resource_aykxr")])
+board_size = Vector2(500, 500)
+board_colours = {
+"east": ["green", "red", "red", "red", "green"],
+"north": ["yellow", "blue", "green", "red", "blue"],
+"south": ["blue", "blue", "red", "red", "blue"],
+"west": ["green", "green", "yellow", "blue", "green"]
+}

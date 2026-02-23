@@ -91,12 +91,12 @@ func create_resize_handles():
 		shape.shape = square
 		handle.add_child(shape)
 		
-		var rect_vis = ColorRect.new()
-		rect_vis.color = Color(0.25,0.25,0.25,0.25)
-		rect_vis.size = Vector2(20, 20)           
-		rect_vis.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		handle.add_child(rect_vis)
-		rect_vis.position = -rect_vis.size / 2      # center it on handle
+		#var rect_vis = ColorRect.new()
+		#rect_vis.color = Color(0.25,0.25,0.25,0.25)
+		#rect_vis.size = Vector2(20, 20)           
+		#rect_vis.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		#handle.add_child(rect_vis)
+		#rect_vis.position = -rect_vis.size / 2      # center it on handle
 		
 		handle.position = positions[dir]
 		handle.set_meta("direction", dir)
