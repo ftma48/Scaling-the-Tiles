@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_gm4x5"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_qnyan"]
+
+[sub_resource type="Resource" id="Resource_enqqq"]
+script = ExtResource("2_qnyan")
+tile_size = Vector2(500, 100)
+start_position = Vector2(1046, 156.4)
+side_colours = {
+"east": ["green"],
+"north": ["green", "yellow", "blue", "blue", "red"],
+"south": ["yellow", "yellow", "blue", "red", "yellow"],
+"west": ["yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_vawus"]
+script = ExtResource("2_qnyan")
+tile_size = Vector2(500, 200)
+start_position = Vector2(1046, 306.4)
+side_colours = {
+"east": ["blue", "yellow"],
+"north": ["yellow", "yellow", "blue", "red", "yellow"],
+"south": ["green", "red", "red", "green", "red"],
+"west": ["blue", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_vukd7"]
+script = ExtResource("2_qnyan")
+tile_size = Vector2(500, 100)
+start_position = Vector2(1046, 456.4)
+side_colours = {
+"east": ["red"],
+"north": ["green", "red", "red", "green", "red"],
+"south": ["green", "red", "red", "green", "blue"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_ktlx0"]
+script = ExtResource("2_qnyan")
+tile_size = Vector2(100, 100)
+start_position = Vector2(846, 556.4)
+side_colours = {
+"east": ["red"],
+"north": ["green"],
+"south": ["blue"],
+"west": ["red"]
+}
+
+[sub_resource type="Resource" id="Resource_tq2d2"]
+script = ExtResource("2_qnyan")
+tile_size = Vector2(400, 100)
+start_position = Vector2(1096, 556.4)
+side_colours = {
+"east": ["green"],
+"north": ["red", "red", "green", "blue"],
+"south": ["blue", "green", "blue", "green"],
+"west": ["red"]
+}
+
+[resource]
+script = ExtResource("1_gm4x5")
+puzzle_name = "generated_2026-02-23T11:53:00"
+tiles = Array[ExtResource("2_qnyan")]([SubResource("Resource_enqqq"), SubResource("Resource_vawus"), SubResource("Resource_vukd7"), SubResource("Resource_ktlx0"), SubResource("Resource_tq2d2")])
+board_size = Vector2(500, 500)
+board_colours = {
+"east": ["green", "blue", "yellow", "red", "green"],
+"north": ["green", "yellow", "blue", "blue", "red"],
+"south": ["blue", "blue", "green", "blue", "green"],
+"west": ["yellow", "blue", "blue", "green", "red"]
+}

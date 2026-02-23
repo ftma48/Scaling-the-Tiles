@@ -361,6 +361,7 @@ func _on_button_button_up() -> void:
 	set_cursor()
 	var targroup
 	# check if tile is set to connect to something
+	print("tile dropped, connect is ", connect)
 	if connect != null:
 		# check if its connecting to a tile
 		if connectedTile != null:
@@ -368,6 +369,7 @@ func _on_button_button_up() -> void:
 			# set new position, save global transform
 			_apply_snap_position(connect)
 			var old_global = global_transform
+			print("position snapped")
 			
 			if connectedTile.get_parent().is_in_group("tile_group") and not self.get_parent().is_in_group("tile_group"):
 				# add self to other group 
@@ -511,39 +513,25 @@ func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
 	
 	var board_len = board_segment.get_meta("seg_length")
 	var my_len = my_segment.get_meta("seg_length")
-	print("DEBUG: board seg_len =", board_len, "my seg_len =", my_len, "diff =", abs(board_len - my_len))
-	print("board colour: " , board_segment.get_meta("colour") , " seg colour: " , my_segment.get_meta("colour"))
 	
-	# colour must match
 	if board_segment.get_meta("colour") != my_segment.get_meta("colour"):
-		print("colour mismatch")
 		return
-	print("colours match.")
-
-	# segment length must roughly match
+	
 	if not is_approximately_equal(board_len, my_len):
-		print("lengths mismatch, skipping snap")
 		return
-	print("lengths match.")
 	
 	var board = board_segment.get_meta("parent_board")
 	var dir = board_segment.get_meta("direction")
 	var board_half = board.board_size / 2
 	var tile_half = tile_size / 2
 
-	# now we snap to the position of the detected segment 
-	var target = board_segment.global_position
-	
-	var line = board_segment.get_node("Outline")
-	line.default_color = Color.AQUA
-	line.visible = true
-	line.width = 4.0
-	
-	var my_line = my_segment.get_parent().get_node("Outline")
-	my_line.default_color = Color.AQUA
-	my_line.width = 4.0
-	
-	# adjust based on the segment's direction
+	var board_mid = board_segment.global_position
+	var my_mid = my_segment.global_position
+
+	# Align segment midpoints first
+	var target = global_position + (board_mid - my_mid)
+
+	# Then clamp tile to correct board edge
 	match dir:
 		"north":
 			target.y = board.global_position.y - board_half.y + tile_half.y
@@ -553,24 +541,41 @@ func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
 			target.x = board.global_position.x - board_half.x + tile_half.x
 		"east":
 			target.x = board.global_position.x + board_half.x - tile_half.x
-
+	
 	connect = target
-	print("DEBUG: connect set for segment at ", connect)
+	
+	if board_segment.has_node("Outline"):
+		var line = board_segment.get_node("Outline")
+		line.default_color = Color.AQUA
+		line.visible = true
+		line.width = 4.0
+	
+	if my_segment.get_parent().has_node("Outline"):
+		var my_line = my_segment.get_parent().get_node("Outline")
+		my_line.default_color = Color.AQUA
+		my_line.width = 4.0
 
 func _on_segment_area_exited(area: Area2D, my_segment: Area2D) -> void:
-	# reset connect variables
-	connect = null
-	connectedTile = null
-	
-	# set outline colours back to default
+	# Only clear if this exit corresponds to the active connection
+	if connectedTile != null and area.has_meta("parent_tile"):
+		if area.get_meta("parent_tile") == connectedTile:
+			connect = null
+			connectedTile = null
+	elif connectedTile == null and area.has_meta("parent_board"):
+		# only clear board snap if it was a board snap
+		connect = null
+
+	# reset outline visuals only
 	if area.get_parent().has_node("Outline"):
 		var line = area.get_parent().get_node("Outline")
 		line.default_color = Color.WHITE
 		line.width = 2.0
+
 	if area.has_node("Outline"):
 		var line = area.get_node("Outline")
 		line.visible = false
 		line.width = 2.0
+
 	if my_segment.get_parent().has_node("Outline"):
 		var line2 = my_segment.get_parent().get_node("Outline")
 		line2.default_color = Color.WHITE

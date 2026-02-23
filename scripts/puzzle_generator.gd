@@ -1,7 +1,7 @@
 extends Node
 class_name PuzzleGenerator
 
-@export var colours := ["red", "blue", "green", "yellow"]
+@export var base_colours := ["red", "blue", "green", "yellow"]
 @export var unit_grid_size := Vector2i(6, 6)
 @export var unit_world_size := Vector2(100, 100)
 @export var solution_origin := Vector2(0, 0)
@@ -11,13 +11,18 @@ class_name PuzzleGenerator
 @export var max_depth := 4
 @export var split_stop_chance := 0.25
 
+var colours := []
 var tile_regions: Array[Rect2i] = []
 var generated_tiles: Array[TileInfo] = []
 var rng := RandomNumberGenerator.new()
 var vertical_boundaries := []
 var horizontal_boundaries := []
 
-func generate_puzzle():
+func generate_puzzle(unit_grid: Vector2i, unit_world: Vector2, colour_num: int, depth: int):
+	unit_grid_size = unit_grid
+	unit_world_size = unit_world
+	colours = base_colours.slice(0, colour_num)
+	max_depth = depth
 	_init_rng()
 	var board := get_node("/root/Main/PuzzleBoard")
 	solution_origin = board.global_position

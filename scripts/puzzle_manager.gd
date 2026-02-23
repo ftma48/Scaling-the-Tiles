@@ -54,8 +54,23 @@ func _on_play_puzzle_selected(index):
 	_show_puzzle_controls()
 
 func _on_generate_pressed():
+	var popup = preload("res://ui/DifficultyPopup.tscn").instantiate()
+	add_child(popup)
+	
+	popup.difficulty_selected.connect(func(level):
+		popup.queue_free()
+		_generate_with_difficulty(level)
+	)
+
+func _generate_with_difficulty(level):
 	var puzzle_generator = get_tree().get_first_node_in_group("puzzle_generator")
-	generated_puzzle = puzzle_generator.generate_puzzle()
+	match level:
+		"easy":
+			generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(5,5), Vector2(100,100), 4, 3)
+		"medium":
+			generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(7,7), Vector2(60,60), 4, 4)
+		"hard":
+			generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(10,10), Vector2(50,50), 3, 5)
 
 func author_mode():
 	if has_node("AuthorUI"):

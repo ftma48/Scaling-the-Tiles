@@ -1,0 +1,137 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_hlrcb"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_vxmxq"]
+
+[sub_resource type="Resource" id="Resource_plo0p"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(180, 300)
+start_position = Vector2(926, 296.4)
+side_colours = {
+"east": ["green", "red", "blue", "blue", "red"],
+"north": ["blue", "red", "green"],
+"south": ["blue", "red", "yellow"],
+"west": ["red", "blue", "green", "yellow", "yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_byvf1"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(60, 300)
+start_position = Vector2(1046, 296.4)
+side_colours = {
+"east": ["yellow", "blue", "green", "green", "yellow"],
+"north": ["yellow"],
+"south": ["yellow"],
+"west": ["green", "red", "blue", "blue", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_2hd8s"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(180, 300)
+start_position = Vector2(1166, 296.4)
+side_colours = {
+"east": ["red", "yellow", "blue", "yellow", "blue"],
+"north": ["yellow", "yellow", "blue"],
+"south": ["yellow", "blue", "red"],
+"west": ["yellow", "blue", "green", "green", "yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_ecx6m"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(60, 60)
+start_position = Vector2(866, 476.4)
+side_colours = {
+"east": ["red"],
+"north": ["blue"],
+"south": ["red"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_uoyif"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(300, 60)
+start_position = Vector2(1046, 476.4)
+side_colours = {
+"east": ["blue"],
+"north": ["red", "yellow", "yellow", "yellow", "blue"],
+"south": ["blue", "green", "blue", "blue", "red"],
+"west": ["red"]
+}
+
+[sub_resource type="Resource" id="Resource_0p2mi"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(60, 60)
+start_position = Vector2(1226, 476.4)
+side_colours = {
+"east": ["yellow"],
+"north": ["red"],
+"south": ["yellow"],
+"west": ["blue"]
+}
+
+[sub_resource type="Resource" id="Resource_2wbrx"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(60, 60)
+start_position = Vector2(866, 536.4)
+side_colours = {
+"east": ["yellow"],
+"north": ["red"],
+"south": ["yellow"],
+"west": ["yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_ohsh5"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(60, 60)
+start_position = Vector2(926, 536.4)
+side_colours = {
+"east": ["green"],
+"north": ["blue"],
+"south": ["green"],
+"west": ["yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_c3465"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(180, 60)
+start_position = Vector2(1046, 536.4)
+side_colours = {
+"east": ["red"],
+"north": ["green", "blue", "blue"],
+"south": ["red", "yellow", "yellow"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_cuiby"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(60, 60)
+start_position = Vector2(1166, 536.4)
+side_colours = {
+"east": ["green"],
+"north": ["red"],
+"south": ["red"],
+"west": ["red"]
+}
+
+[sub_resource type="Resource" id="Resource_aosxy"]
+script = ExtResource("2_vxmxq")
+tile_size = Vector2(60, 60)
+start_position = Vector2(1226, 536.4)
+side_colours = {
+"east": ["red"],
+"north": ["yellow"],
+"south": ["blue"],
+"west": ["green"]
+}
+
+[resource]
+script = ExtResource("1_hlrcb")
+puzzle_name = "generated_2026-02-23T11:53:11"
+tiles = Array[ExtResource("2_vxmxq")]([SubResource("Resource_plo0p"), SubResource("Resource_byvf1"), SubResource("Resource_2hd8s"), SubResource("Resource_ecx6m"), SubResource("Resource_uoyif"), SubResource("Resource_0p2mi"), SubResource("Resource_2wbrx"), SubResource("Resource_ohsh5"), SubResource("Resource_c3465"), SubResource("Resource_cuiby"), SubResource("Resource_aosxy")])
+board_size = Vector2(420, 420)
+board_colours = {
+"east": ["red", "yellow", "blue", "yellow", "blue", "yellow", "red"],
+"north": ["blue", "red", "green", "yellow", "yellow", "yellow", "blue"],
+"south": ["yellow", "green", "red", "yellow", "yellow", "red", "blue"],
+"west": ["red", "blue", "green", "yellow", "yellow", "green", "yellow"]
+}
