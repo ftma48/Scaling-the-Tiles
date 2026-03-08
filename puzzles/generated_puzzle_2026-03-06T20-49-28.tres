@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_ebexu"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_1p3si"]
+
+[sub_resource type="Resource" id="Resource_vtnsb"]
+script = ExtResource("2_1p3si")
+tile_size = Vector2(130, 260)
+start_position = Vector2(786, 161.4)
+side_colours = {
+"east": ["blue", "green"],
+"north": ["red"],
+"south": ["yellow"],
+"west": ["red", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_nslyp"]
+script = ExtResource("2_1p3si")
+tile_size = Vector2(520, 260)
+start_position = Vector2(1111, 161.4)
+side_colours = {
+"east": ["yellow", "yellow"],
+"north": ["green", "blue", "yellow", "red"],
+"south": ["green", "green", "red", "green"],
+"west": ["blue", "green"]
+}
+
+[sub_resource type="Resource" id="Resource_q21r4"]
+script = ExtResource("2_1p3si")
+tile_size = Vector2(260, 130)
+start_position = Vector2(851, 356.4)
+side_colours = {
+"east": ["green"],
+"north": ["yellow", "green"],
+"south": ["red", "blue"],
+"west": ["yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_fdcy3"]
+script = ExtResource("2_1p3si")
+tile_size = Vector2(390, 130)
+start_position = Vector2(1176, 356.4)
+side_colours = {
+"east": ["yellow"],
+"north": ["green", "red", "green"],
+"south": ["red", "red", "yellow"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_1vsk8"]
+script = ExtResource("2_1p3si")
+tile_size = Vector2(260, 260)
+start_position = Vector2(851, 551.4)
+side_colours = {
+"east": ["green", "yellow"],
+"north": ["red", "blue"],
+"south": ["blue", "green"],
+"west": ["red", "yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_dxiw3"]
+script = ExtResource("2_1p3si")
+tile_size = Vector2(390, 260)
+start_position = Vector2(1176, 551.4)
+side_colours = {
+"east": ["blue", "blue"],
+"north": ["red", "red", "yellow"],
+"south": ["yellow", "blue", "blue"],
+"west": ["green", "yellow"]
+}
+
+[resource]
+script = ExtResource("1_ebexu")
+puzzle_name = "generated_2026-03-06T20:49:28"
+tiles = Array[ExtResource("2_1p3si")]([SubResource("Resource_vtnsb"), SubResource("Resource_nslyp"), SubResource("Resource_q21r4"), SubResource("Resource_fdcy3"), SubResource("Resource_1vsk8"), SubResource("Resource_dxiw3")])
+board_size = Vector2(650, 650)
+board_colours = {
+"east": ["yellow", "yellow", "yellow", "blue", "blue"],
+"north": ["red", "green", "blue", "yellow", "red"],
+"south": ["blue", "green", "yellow", "blue", "blue"],
+"west": ["red", "red", "yellow", "red", "yellow"]
+}

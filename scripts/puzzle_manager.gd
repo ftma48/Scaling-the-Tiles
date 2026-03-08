@@ -44,8 +44,8 @@ func _on_play_puzzle_selected(index):
 	
 	
 	match index:
-		1: load_puzzle(load("res://puzzles/puzzle_2026-01-26T10-56-35.tres"))
-		2: load_puzzle(load("res://puzzles/puzzle_2026-01-26T11-06-01.tres"))
+		1: load_puzzle(load("res://puzzles/puzzle_2026-03-06T20-30-39.tres"))
+		2: load_puzzle(load("res://puzzles/puzzle_2026-03-06T20-35-58.tres"))
 		3: load_puzzle(generated_puzzle)
 	
 	var board := get_node("/root/Main/PuzzleBoard")
@@ -65,12 +65,11 @@ func _on_generate_pressed():
 func _generate_with_difficulty(level):
 	var puzzle_generator = get_tree().get_first_node_in_group("puzzle_generator")
 	match level:
-		"easy":
-			generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(5,5), Vector2(100,100), 4, 3)
-		"medium":
-			generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(7,7), Vector2(60,60), 4, 4)
-		"hard":
-			generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(10,10), Vector2(50,50), 3, 5)
+		"easy":   generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(5,5),  Vector2(130,130), 4, 3, 4)
+		"medium": generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(7,7),  Vector2(100,100), 4, 5, 3)
+		"hard":   generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(10,10), Vector2(70,70),  3, 5, 2)
+	
+	load_puzzle(generated_puzzle) 
 
 func author_mode():
 	if has_node("AuthorUI"):
@@ -454,7 +453,7 @@ func _on_save_puzzle_pressed():
 	print("puzzle saved")
 
 func _on_load_puzzle_pressed():
-	load_puzzle(load("res://puzzles/puzzle_2026-01-26T11-06-01.tres"))
+	load_puzzle(load("res://puzzles/puzzle_2026-01-26T10-56-35.tres"))
 
 func _on_solve_puzzle_pressed():
 	load_puzzle(current_puzzle, true)
@@ -490,3 +489,6 @@ func _on_back_pressed():
 func remove_tile_from_puzzle(tile_to_remove: Node2D):
 	tiles.erase(tile_to_remove)
 	print("Tile removed from puzzle!")
+
+func check_win_condition():
+	pass

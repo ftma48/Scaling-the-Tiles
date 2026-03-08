@@ -1,0 +1,115 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_32wln"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_lknhu"]
+
+[sub_resource type="Resource" id="Resource_a56pm"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(300, 50)
+start_position = Vector2(946, 131.4)
+side_colours = {
+"east": ["green"],
+"north": ["blue", "blue", "blue", "blue", "blue", "blue"],
+"south": ["red", "green", "blue", "green", "blue", "blue"],
+"west": ["red"]
+}
+
+[sub_resource type="Resource" id="Resource_bx24e"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(50, 50)
+start_position = Vector2(1121, 131.4)
+side_colours = {
+"east": ["green"],
+"north": ["green"],
+"south": ["blue"],
+"west": ["green"]
+}
+
+[sub_resource type="Resource" id="Resource_c6v38"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(250, 100)
+start_position = Vector2(921, 206.4)
+side_colours = {
+"east": ["green", "green"],
+"north": ["red", "green", "blue", "green", "blue"],
+"south": ["red", "green", "blue", "red", "blue"],
+"west": ["green", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_dr58t"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(250, 150)
+start_position = Vector2(921, 331.4)
+side_colours = {
+"east": ["red", "green", "red"],
+"north": ["red", "green", "blue", "red", "blue"],
+"south": ["green", "red", "green", "blue", "green"],
+"west": ["green", "blue", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_lr5fs"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(50, 250)
+start_position = Vector2(1071, 281.4)
+side_colours = {
+"east": ["blue", "red", "red", "green", "green"],
+"north": ["blue"],
+"south": ["green"],
+"west": ["green", "green", "red", "green", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_py57t"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(50, 250)
+start_position = Vector2(1121, 281.4)
+side_colours = {
+"east": ["red", "red", "blue", "blue", "red"],
+"north": ["blue"],
+"south": ["green"],
+"west": ["blue", "red", "red", "green", "green"]
+}
+
+[sub_resource type="Resource" id="Resource_jcne2"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(300, 200)
+start_position = Vector2(946, 506.4)
+side_colours = {
+"east": ["red", "green", "red", "red"],
+"north": ["green", "red", "green", "blue", "green", "green"],
+"south": ["red", "blue", "green", "blue", "blue", "green"],
+"west": ["green", "red", "green", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_ssa5y"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(50, 200)
+start_position = Vector2(1121, 506.4)
+side_colours = {
+"east": ["red", "red", "green", "red"],
+"north": ["green"],
+"south": ["blue"],
+"west": ["red", "green", "red", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_2xgyx"]
+script = ExtResource("2_lknhu")
+tile_size = Vector2(150, 500)
+start_position = Vector2(1221, 356.4)
+side_colours = {
+"east": ["blue", "red", "blue", "green", "blue", "blue", "red", "green", "green", "blue"],
+"north": ["blue", "red", "blue"],
+"south": ["red", "green", "green"],
+"west": ["green", "red", "red", "blue", "blue", "red", "red", "red", "green", "red"]
+}
+
+[resource]
+script = ExtResource("1_32wln")
+puzzle_name = "generated_2026-02-26T16:08:13"
+tiles = Array[ExtResource("2_lknhu")]([SubResource("Resource_a56pm"), SubResource("Resource_bx24e"), SubResource("Resource_c6v38"), SubResource("Resource_dr58t"), SubResource("Resource_lr5fs"), SubResource("Resource_py57t"), SubResource("Resource_jcne2"), SubResource("Resource_ssa5y"), SubResource("Resource_2xgyx")])
+board_size = Vector2(500, 500)
+board_colours = {
+"east": ["blue", "red", "blue", "green", "blue", "blue", "red", "green", "green", "blue"],
+"north": ["blue", "blue", "blue", "blue", "blue", "blue", "green", "blue", "red", "blue"],
+"south": ["red", "blue", "green", "blue", "blue", "green", "blue", "red", "green", "green"],
+"west": ["red", "green", "blue", "green", "blue", "blue", "green", "red", "green", "red"]
+}

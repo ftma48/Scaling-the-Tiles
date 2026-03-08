@@ -3,9 +3,9 @@ class_name PuzzleBoard
 
 @export var board_size := Vector2(900, 600)
 @export var edge_thickness := 20
+@export var tray_ratio = 0.2 
 
 var edge_segments_container: Node2D 
-
 var side_colours := {}
 
 func _ready():
@@ -185,8 +185,8 @@ func _clear_edge_segments():
 func _draw_piece_tray():
 	var viewport_size := get_viewport_rect().size
 	
-	var tray_height := viewport_size.y * 0.34
-	var tray_top := viewport_size.y - tray_height
+	var tray_height = viewport_size.y * tray_ratio
+	var tray_top = viewport_size.y - tray_height
 	
 	# Convert global → local space
 	var local_top_left := to_local(Vector2(0, tray_top))
@@ -201,8 +201,8 @@ func _draw_piece_tray():
 func get_piece_tray_rect() -> Rect2:
 	var viewport_size := get_viewport_rect().size
 	
-	var tray_height := viewport_size.y * 0.34
-	var tray_top := viewport_size.y - tray_height
+	var tray_height = viewport_size.y * tray_ratio
+	var tray_top = viewport_size.y - tray_height
 	
 	return Rect2(
 		Vector2(0, tray_top),

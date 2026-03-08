@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_6a2no"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_gbnis"]
+
+[sub_resource type="Resource" id="Resource_542xj"]
+script = ExtResource("2_gbnis")
+tile_size = Vector2(50, 50)
+start_position = Vector2(821, 131.4)
+side_colours = {
+"east": ["green"],
+"north": ["green"],
+"south": ["blue"],
+"west": ["red"]
+}
+
+[sub_resource type="Resource" id="Resource_aqii8"]
+script = ExtResource("2_gbnis")
+tile_size = Vector2(50, 400)
+start_position = Vector2(821, 356.4)
+side_colours = {
+"east": ["blue", "green", "green", "green", "blue", "red", "red", "green"],
+"north": ["blue"],
+"south": ["blue"],
+"west": ["red", "blue", "red", "green", "blue", "blue", "blue", "blue"]
+}
+
+[sub_resource type="Resource" id="Resource_cvbyv"]
+script = ExtResource("2_gbnis")
+tile_size = Vector2(50, 200)
+start_position = Vector2(871, 206.4)
+side_colours = {
+"east": ["red", "green", "red", "green"],
+"north": ["red"],
+"south": ["red"],
+"west": ["green", "blue", "green", "green"]
+}
+
+[sub_resource type="Resource" id="Resource_lvhax"]
+script = ExtResource("2_gbnis")
+tile_size = Vector2(50, 50)
+start_position = Vector2(871, 331.4)
+side_colours = {
+"east": ["red"],
+"north": ["red"],
+"south": ["blue"],
+"west": ["green"]
+}
+
+[resource]
+script = ExtResource("1_6a2no")
+puzzle_name = "generated_2026-02-26T16:11:54"
+tiles = Array[ExtResource("2_gbnis")]([SubResource("Resource_542xj"), SubResource("Resource_aqii8"), SubResource("Resource_cvbyv"), SubResource("Resource_lvhax")])
+board_size = Vector2(500, 500)
+board_colours = {
+"east": ["green", "red", "blue", "red", "red", "green", "blue", "red", "red", "red"],
+"north": ["green", "red", "blue", "green", "green", "blue", "green", "blue", "red", "blue"],
+"south": ["green", "green", "red", "red", "blue", "green", "blue", "red", "green", "red"],
+"west": ["red", "red", "blue", "red", "green", "blue", "blue", "blue", "blue", "green"]
+}

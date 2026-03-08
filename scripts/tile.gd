@@ -12,6 +12,7 @@ var side_colours = {
 	"west" = []
 }
 
+var snap_candidate = null
 var connect = null
 var connectedTile = null
 var group = null 
@@ -65,7 +66,7 @@ func init_tile(
 func create_resize_handles():
 	# create 8 handles for resizing
 	var handles = Node2D.new()
-	handles.z_index = 10
+	handles.z_index = 20
 	handles.name = "ResizeHandles"
 	add_child(handles)
 	
@@ -87,9 +88,10 @@ func create_resize_handles():
 		
 		var shape = CollisionShape2D.new()
 		var square = RectangleShape2D.new()
-		square.size = Vector2(20,20)
+		square.size = _get_handle_size(dir)
 		shape.shape = square
 		handle.add_child(shape)
+		
 		
 		#var rect_vis = ColorRect.new()
 		#rect_vis.color = Color(0.25,0.25,0.25,0.25)
@@ -103,6 +105,18 @@ func create_resize_handles():
 		handle.connect("input_event", Callable(self, "_on_handle_input").bind(handle))
 		handle.mouse_entered.connect(_on_handle_mouse_entered.bind(handle))
 		handle.mouse_exited.connect(_on_handle_mouse_exited)
+
+
+func _get_handle_size(dir: String) -> Vector2:
+	var thickness = 40.0
+	match dir:
+		"north", "south":
+			return Vector2(tile_size.x * 0.8, thickness)
+		"east", "west":
+			return Vector2(thickness, tile_size.y * 0.8)
+		"ne", "nw", "se", "sw":
+			return Vector2(thickness * 1.5, thickness * 1.5)
+	return Vector2(thickness, thickness)
 
 func _on_handle_mouse_entered(handle):
 	var dir = handle.get_meta("direction")
@@ -152,6 +166,9 @@ func update_resize_handles():
 		if handles.has_node(node_name):
 			var h = handles.get_node(node_name)
 			h.position = positions[dir]
+			for child in h.get_children():
+				if child is CollisionShape2D:
+					child.shape.size = _get_handle_size(dir)
 		else:
 			print("missing handle:", node_name)
 
@@ -281,6 +298,8 @@ func _on_button_button_down() -> void:
 			if group.has_method("remove_tile"):
 				group.remove_tile(self)
 			disconnectSound.play()
+			global_position +=  (tile_size * 0.1)
+			return
 	
 	Input.set_default_cursor_shape(Input.CURSOR_CAN_DROP)
 	dragging = true
@@ -359,62 +378,67 @@ func _apply_snap_position(target_global: Vector2):
 func _on_button_button_up() -> void:
 	dragging = false
 	set_cursor()
-	var targroup
-	# check if tile is set to connect to something
-	print("tile dropped, connect is ", connect)
-	if connect != null:
-		# check if its connecting to a tile
-		if connectedTile != null:
-			
-			# set new position, save global transform
-			_apply_snap_position(connect)
-			var old_global = global_transform
-			print("position snapped")
-			
-			if connectedTile.get_parent().is_in_group("tile_group") and not self.get_parent().is_in_group("tile_group"):
-				# add self to other group 
-				targroup = connectedTile.get_parent()
-				targroup.add_tile(self)
-				global_transform = old_global
-				connectSound.play()
-			elif self.get_parent().is_in_group("tile_group") and not connectedTile.get_parent().is_in_group("tile_group"):
-				targroup = get_parent()
-				targroup.add_tile(connectedTile)
-				global_transform = old_global
-				connectSound.play()
-			elif self.get_parent().is_in_group("tile_group") and  connectedTile.get_parent().is_in_group("tile_group"):
-				merge_with_group(connectedTile.get_parent(),self.get_parent())
-			else:
-				targroup = TileGroupScene.instantiate()
-				targroup.add_to_group("tile_group")
-				var parent = connectedTile.get_parent()
-				parent.add_child(targroup)
-				targroup.global_position = connectedTile.global_position
-				targroup.add_tile(connectedTile)
-				targroup.add_tile(self)
-			if not_equal:
-				_snap_resize(snap_length, snap_dir)
-			
+
+	if snap_candidate != null:
+
+		var snap = snap_candidate
+		snap_candidate = null
+
+		if _is_snap_globally_valid(snap["target_position"]):
+			_apply_snap_position(snap["target_position"])
 		else:
-			_apply_snap_position(connect)
-			print("connecting to board")
-			connectSound.play()  
-			
-			var board := get_tree().get_first_node_in_group("puzzle_board")
-			if board and board.edge_segments_container:
-				for seg in board.edge_segments_container.get_children():
-					if seg.has_node("Outline"):
-						var line = seg.get_node("Outline")
-						line.default_color = Color.WHITE
-						line.width = 2.0
-						line.visible = false
+			snap_candidate = null
+			return
+	
+		if snap["other_tile"] != null:
+			_handle_tile_connection(snap["other_tile"])
+			if puzzleManager.check_win_condition():
+				print("PUZZLE SOLVED")
+		else:
+			connectSound.play()
 		
-		# reset snapping state
-		connect = null
-		connectedTile = null
-		not_equal = false
-		snap_dir = null
-		snap_length = 0
+		if snap["resize_needed"]:
+			_snap_resize(
+				snap["resize_length"],
+				snap["resize_dir"]
+			)
+
+	snap_candidate = null
+
+func _handle_tile_connection(other_tile):
+
+	var targroup
+	var old_global = global_transform
+
+	if other_tile.get_parent().is_in_group("tile_group") \
+	and not self.get_parent().is_in_group("tile_group"):
+
+		targroup = other_tile.get_parent()
+		targroup.add_tile(self)
+		global_transform = old_global
+
+	elif self.get_parent().is_in_group("tile_group") \
+	and not other_tile.get_parent().is_in_group("tile_group"):
+
+		targroup = get_parent()
+		targroup.add_tile(other_tile)
+		global_transform = old_global
+
+	elif self.get_parent().is_in_group("tile_group") \
+	and other_tile.get_parent().is_in_group("tile_group"):
+
+		merge_with_group(other_tile.get_parent(), self.get_parent())
+
+	else:
+		targroup = TileGroupScene.instantiate()
+		targroup.add_to_group("tile_group")
+		var parent = other_tile.get_parent()
+		parent.add_child(targroup)
+		targroup.global_position = other_tile.global_position
+		targroup.add_tile(other_tile)
+		targroup.add_tile(self)
+
+	connectSound.play()
 
 func merge_with_group(source_group: Node2D, target_group: Node2D):
 	var tiles_to_move = source_group.get_tiles().duplicate()
@@ -463,63 +487,66 @@ func _on_segment_area_entered(area: Area2D, my_segment: Area2D) -> void:
 		
 		# if area encountered belongs to a board or tile segment, 
 		# is approximately the same length, and is the same colour, set
-		# 'connect' to the position tile will snap to.
-		if is_tile and area.has_meta("direction") and is_approximately_equal(area.get_meta("seg_length"), my_segment.get_meta("seg_length")):
-			if area.get_meta("colour") == my_segment.get_meta("colour"):
-				connectedTile = area.get_meta("parent_tile")
-				var dir = area.get_meta("direction")
+		# calculate the position tile will snap to.
+		if is_tile and area.has_meta("direction"):
+			if area.get_meta("colour") == my_segment.get_meta("colour") \
+			and is_approximately_equal(area.get_meta("seg_length"), my_segment.get_meta("seg_length")):
 				
 				var other_mid = area.global_position
 				var my_mid = my_segment.global_position
-				var target_pos = other_mid
-				var other_size = connectedTile.tile_size
-				var this_size = tile_size
+				var dir = area.get_meta("direction")
 				
-				var delta = other_mid - my_mid
 				var offset := Vector2.ZERO
 				match dir:
-					"north":
-						offset = Vector2(0, 5)
-					"south":
-						offset = Vector2(0, -5)
-					"east":
-						offset = Vector2(-5, 0)
-					"west":
-						offset = Vector2(5, 0)
+					"north": offset = Vector2(0, 5)
+					"south": offset = Vector2(0, -5)
+					"east":  offset = Vector2(-5, 0)
+					"west":  offset = Vector2(5, 0)
 				
-				connect = global_position + (other_mid - my_mid) + offset
+				var target = global_position + (other_mid - my_mid) + offset
 				
-				# make segments glow when connectable
-				var line = area.get_parent().get_node("Outline")
-				var line2 = my_segment.get_parent().get_node("Outline")
-				line.default_color = Color.AQUA
-				line.width = 4.0
-				line2.default_color = Color.AQUA
-				line2.width = 4.0
+				var seg_len = area.get_meta("seg_length")
+				var my_len = my_segment.get_meta("seg_length")
+
+				snap_candidate = {
+					"target_position": target,
+					"other_tile": area.get_meta("parent_tile"),
+					"board_segment": null,
+					"my_segment": my_segment,
+					"other_segment": area,
+					"resize_needed": is_approximately_equal(seg_len, my_len) and not seg_len == my_len,
+					"resize_length": seg_len,
+					"resize_dir": area.get_meta("direction")
+				}
 				
-				# if segments are not exactly equal, set 'not_equal' ready for resize
-				snap_length = area.get_meta("seg_length")
-				snap_dir = dir
-				if not area.get_meta("seg_length") == my_segment.get_meta("seg_length"):
-					not_equal = true
+				_glow_segments(area, my_segment)
 		
 		if is_board:
 			print("board detected")
 			_snap_to_board(area, my_segment)
 
-func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
-	if not dragging:
-		return
-	
+func _glow_segments(other_segment, my_segment):
+	if other_segment.get_parent().has_node("Outline"):
+		var line = other_segment.get_parent().get_node("Outline")
+		line.default_color = Color.AQUA
+		line.width = 4.0
+
+	if my_segment.get_parent().has_node("Outline"):
+		var my_line = my_segment.get_parent().get_node("Outline")
+		my_line.default_color = Color.AQUA
+		my_line.width = 4.0
+
+func _snap_to_board(board_segment: Area2D, my_segment: Area2D):
+
 	var board_len = board_segment.get_meta("seg_length")
 	var my_len = my_segment.get_meta("seg_length")
-	
+
 	if board_segment.get_meta("colour") != my_segment.get_meta("colour"):
 		return
-	
+
 	if not is_approximately_equal(board_len, my_len):
 		return
-	
+
 	var board = board_segment.get_meta("parent_board")
 	var dir = board_segment.get_meta("direction")
 	var board_half = board.board_size / 2
@@ -528,10 +555,8 @@ func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
 	var board_mid = board_segment.global_position
 	var my_mid = my_segment.global_position
 
-	# Align segment midpoints first
 	var target = global_position + (board_mid - my_mid)
 
-	# Then clamp tile to correct board edge
 	match dir:
 		"north":
 			target.y = board.global_position.y - board_half.y + tile_half.y
@@ -541,39 +566,34 @@ func _snap_to_board(board_segment: Area2D, my_segment: Area2D) -> void:
 			target.x = board.global_position.x - board_half.x + tile_half.x
 		"east":
 			target.x = board.global_position.x + board_half.x - tile_half.x
-	
-	connect = target
-	
-	if board_segment.has_node("Outline"):
-		var line = board_segment.get_node("Outline")
-		line.default_color = Color.AQUA
-		line.visible = true
-		line.width = 4.0
-	
-	if my_segment.get_parent().has_node("Outline"):
-		var my_line = my_segment.get_parent().get_node("Outline")
-		my_line.default_color = Color.AQUA
-		my_line.width = 4.0
+
+	var seg_len = board_len
+
+	snap_candidate = {
+		"target_position": target,
+		"other_tile": null,
+		"board_segment": board_segment,
+		"my_segment": my_segment,
+		"other_segment": board_segment,
+		"resize_needed": is_approximately_equal(seg_len, my_len) and not seg_len == my_len,
+		"resize_length": seg_len,
+		"resize_dir": dir
+	}
+
+	_glow_segments(board_segment, my_segment)
 
 func _on_segment_area_exited(area: Area2D, my_segment: Area2D) -> void:
-	# Only clear if this exit corresponds to the active connection
-	if connectedTile != null and area.has_meta("parent_tile"):
-		if area.get_meta("parent_tile") == connectedTile:
-			connect = null
-			connectedTile = null
-	elif connectedTile == null and area.has_meta("parent_board"):
-		# only clear board snap if it was a board snap
-		connect = null
 
-	# reset outline visuals only
+	if snap_candidate != null:
+		if snap_candidate.has("other_segment") \
+		and snap_candidate["other_segment"] == area:
+
+			snap_candidate = null
+
+	# reset visuals
 	if area.get_parent().has_node("Outline"):
 		var line = area.get_parent().get_node("Outline")
 		line.default_color = Color.WHITE
-		line.width = 2.0
-
-	if area.has_node("Outline"):
-		var line = area.get_node("Outline")
-		line.visible = false
 		line.width = 2.0
 
 	if my_segment.get_parent().has_node("Outline"):
@@ -723,3 +743,55 @@ func _on_button_mouse_entered() -> void:
 func _on_button_mouse_exited() -> void:
 	tile_hover = false
 	set_cursor()
+
+func _is_snap_globally_valid(target_global: Vector2) -> bool:
+	if not has_node("Triangles"):
+		return true
+	
+	var my_triangles = get_node("Triangles")
+	var offset = target_global - global_position
+	
+	for segment_group in my_triangles.get_children():
+		for child in segment_group.get_children():
+			if child is Area2D:
+				var my_segment: Area2D = child
+				var simulated_pos = my_segment.global_position + offset
+				
+				# Check against ALL other tiles managed by PuzzleManager
+				for tile in puzzleManager.tiles:
+					if tile == self:
+						continue
+					
+					if not tile.has_node("Triangles"):
+						continue
+					
+					var other_triangles = tile.get_node("Triangles")
+					
+					for other_group in other_triangles.get_children():
+						for other_child in other_group.get_children():
+							if other_child is Area2D:
+								var other_segment: Area2D = other_child
+								
+								# If segments would overlap after snap
+								if simulated_pos.distance_to(other_segment.global_position) < 8.0:
+									
+									# Colour must match
+									if other_segment.get_meta("colour") != my_segment.get_meta("colour"):
+										return false
+									
+									# Direction must be opposite
+									if not _are_opposite(
+										other_segment.get_meta("direction"),
+										my_segment.get_meta("direction")
+									):
+										return false
+	
+	return true
+
+func _are_opposite(dir1: String, dir2: String) -> bool:
+	return (
+		(dir1 == "north" and dir2 == "south") or
+		(dir1 == "south" and dir2 == "north") or
+		(dir1 == "east" and dir2 == "west") or
+		(dir1 == "west" and dir2 == "east")
+	)

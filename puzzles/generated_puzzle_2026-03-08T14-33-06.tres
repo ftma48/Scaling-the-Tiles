@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_50b7f"]
+[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_6fj26"]
+
+[sub_resource type="Resource" id="Resource_jos37"]
+script = ExtResource("2_6fj26")
+tile_size = Vector2(130, 390)
+start_position = Vector2(786, 226.4)
+side_colours = {
+"east": ["green", "yellow", "green"],
+"north": ["red"],
+"south": ["blue"],
+"west": ["blue", "red", "red"]
+}
+
+[sub_resource type="Resource" id="Resource_q426h"]
+script = ExtResource("2_6fj26")
+tile_size = Vector2(520, 390)
+start_position = Vector2(1111, 226.4)
+side_colours = {
+"east": ["blue", "red", "red"],
+"north": ["red", "yellow", "red", "green"],
+"south": ["blue", "blue", "yellow", "yellow"],
+"west": ["green", "yellow", "green"]
+}
+
+[sub_resource type="Resource" id="Resource_00d6s"]
+script = ExtResource("2_6fj26")
+tile_size = Vector2(650, 130)
+start_position = Vector2(1046, 486.4)
+side_colours = {
+"east": ["yellow"],
+"north": ["blue", "blue", "blue", "yellow", "yellow"],
+"south": ["yellow", "red", "yellow", "red", "blue"],
+"west": ["yellow"]
+}
+
+[sub_resource type="Resource" id="Resource_05daq"]
+script = ExtResource("2_6fj26")
+tile_size = Vector2(650, 130)
+start_position = Vector2(1046, 616.4)
+side_colours = {
+"east": ["blue"],
+"north": ["yellow", "red", "yellow", "red", "blue"],
+"south": ["red", "red", "yellow", "red", "green"],
+"west": ["blue"]
+}
+
+[resource]
+script = ExtResource("1_50b7f")
+puzzle_name = "generated_2026-03-08T14:33:06"
+tiles = Array[ExtResource("2_6fj26")]([SubResource("Resource_jos37"), SubResource("Resource_q426h"), SubResource("Resource_00d6s"), SubResource("Resource_05daq")])
+board_size = Vector2(650, 650)
+board_colours = {
+"east": ["blue", "red", "red", "yellow", "blue"],
+"north": ["red", "red", "yellow", "red", "green"],
+"south": ["red", "red", "yellow", "red", "green"],
+"west": ["blue", "red", "red", "yellow", "blue"]
+}

@@ -10,6 +10,8 @@ class_name PuzzleGenerator
 @export var min_tile_size := Vector2i(1, 1)
 @export var max_depth := 4
 @export var split_stop_chance := 0.25
+@export var motif_period := 3  # tune per difficulty
+@export var max_segments_per_side = 3
 
 var colours := []
 var tile_regions: Array[Rect2i] = []
@@ -18,7 +20,8 @@ var rng := RandomNumberGenerator.new()
 var vertical_boundaries := []
 var horizontal_boundaries := []
 
-func generate_puzzle(unit_grid: Vector2i, unit_world: Vector2, colour_num: int, depth: int):
+func generate_puzzle(unit_grid: Vector2i, unit_world: Vector2, colour_num: int, depth: int, motif: int):
+	motif_period = motif
 	unit_grid_size = unit_grid
 	unit_world_size = unit_world
 	colours = base_colours.slice(0, colour_num)
@@ -66,13 +69,23 @@ func _init_unit_boundaries():
 		horizontal_boundaries.append(column)
 
 func _assign_boundary_colours():
+	# build a small random motif
+	var motif = []
+	for i in range(motif_period * motif_period):
+		motif.append(_random_colour())
+	
+	# independent motifs for h and v so it's less obvious
+	var motif_v = []
+	for i in range(motif_period * motif_period):
+		motif_v.append(_random_colour())
+
 	for x in range(vertical_boundaries.size()):
 		for y in range(vertical_boundaries[x].size()):
-			vertical_boundaries[x][y] = _random_colour()
+			vertical_boundaries[x][y] = motif_v[(x % motif_period) * motif_period + (y % motif_period)]
 
 	for x in range(horizontal_boundaries.size()):
 		for y in range(horizontal_boundaries[x].size()):
-			horizontal_boundaries[x][y] = _random_colour()
+			horizontal_boundaries[x][y] = motif[(x % motif_period) * motif_period + (y % motif_period)]
 
 func _random_colour() -> String:
 	return colours[rng.randi_range(0, colours.size() - 1)]
@@ -120,6 +133,9 @@ func _should_stop(region: Rect2i, depth: int) -> bool:
 	if depth >= max_depth:
 		print("DEPTH EXCEEDED")
 		return true
+	
+	if region.size.x > max_segments_per_side or region.size.y > max_segments_per_side:
+		return false
 	
 	var can_split_h = region.size.y >= min_tile_size.y * 2
 	var can_split_v = region.size.x >= min_tile_size.x * 2
