@@ -69,15 +69,8 @@ func _init_unit_boundaries():
 		horizontal_boundaries.append(column)
 
 func _assign_boundary_colours():
-	# build a small random motif
-	var motif = []
-	for i in range(motif_period * motif_period):
-		motif.append(_random_colour())
-	
-	# independent motifs for h and v so it's less obvious
-	var motif_v = []
-	for i in range(motif_period * motif_period):
-		motif_v.append(_random_colour())
+	var motif = _build_motif()
+	var motif_v = _build_motif()
 
 	for x in range(vertical_boundaries.size()):
 		for y in range(vertical_boundaries[x].size()):
@@ -89,6 +82,27 @@ func _assign_boundary_colours():
 
 func _random_colour() -> String:
 	return colours[rng.randi_range(0, colours.size() - 1)]
+
+func _build_motif() -> Array:
+	var motif = []
+	var size = motif_period * motif_period
+	
+	# guarantee every colour appears at least once
+	for c in colours:
+		motif.append(c)
+		
+	# fill remaining slots randomly
+	while motif.size() < size:
+		motif.append(_random_colour())
+	
+	# shuffle so guaranteed colours aren't always top-left
+	for i in range(motif.size() - 1, 0, -1):
+		var j = rng.randi_range(0, i)
+		var tmp = motif[i]
+		motif[i] = motif[j]
+		motif[j] = tmp
+	
+	return motif
 
 func _debug_print_boundaries():
 	print("--- Vertical Boundaries ---")
@@ -340,7 +354,7 @@ func build_puzzle_data() -> PuzzleData:
 	var puzzle := PuzzleData.new()
 	puzzle.puzzle_name = "generated_%s" % Time.get_datetime_string_from_system()
 	puzzle.tiles = generated_tiles.duplicate(true)
-	
+	puzzle.unit_size = unit_world_size
 	puzzle.board_size = Vector2(unit_grid_size) * unit_world_size
 	
 	puzzle.board_colours = {

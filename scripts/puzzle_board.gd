@@ -4,6 +4,7 @@ class_name PuzzleBoard
 @export var board_size := Vector2(900, 600)
 @export var edge_thickness := 20
 @export var tray_ratio = 0.2 
+var tray_height_px := 160.0
 
 var edge_segments_container: Node2D 
 var side_colours := {}
@@ -184,27 +185,26 @@ func _clear_edge_segments():
 
 func _draw_piece_tray():
 	var viewport_size := get_viewport_rect().size
+	var local_top_left := to_local(Vector2(0, viewport_size.y - tray_height_px))
+	draw_rect(Rect2(local_top_left, Vector2(viewport_size.x, tray_height_px)), Color(0.1, 0.1, 0.1, 1.0), true)
+
+
+func update_tray_height(tile_height: float, row_count: int):
+	var padding := 20.0
+	var viewport_height = get_viewport_rect().size.y
 	
-	var tray_height = viewport_size.y * tray_ratio
-	var tray_top = viewport_size.y - tray_height
+	var desired = padding + row_count * (tile_height + padding)
+	var min_height = padding + tile_height + padding  # always at least one row
+	var max_height = viewport_height * 0.4
 	
-	# Convert global → local space
-	var local_top_left := to_local(Vector2(0, tray_top))
+	tray_height_px = clamp(desired, min_height, max_height)
 	
-	var tray_rect := Rect2(
-		local_top_left,
-		Vector2(viewport_size.x, tray_height)
-	)
+	var available_height = viewport_height - tray_height_px
+	global_position.y = available_height / 2
 	
-	draw_rect(tray_rect, Color(0.1, 0.1, 0.1, 1.0), true)
+	queue_redraw()
+
 
 func get_piece_tray_rect() -> Rect2:
 	var viewport_size := get_viewport_rect().size
-	
-	var tray_height = viewport_size.y * tray_ratio
-	var tray_top = viewport_size.y - tray_height
-	
-	return Rect2(
-		Vector2(0, tray_top),
-		Vector2(viewport_size.x, tray_height)
-	)
+	return Rect2(Vector2(0, viewport_size.y - tray_height_px), Vector2(viewport_size.x, tray_height_px))

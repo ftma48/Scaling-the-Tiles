@@ -56,7 +56,7 @@ func init_tile(
 	var rect := RectangleShape2D.new()
 	rect.size = tile_size
 	collishape.shape = rect
-	button.custom_minimum_size = tile_size
+	update_button_size()
 	button.z_index = 15
 	side_colours = side_clrs
 	
@@ -108,7 +108,7 @@ func create_resize_handles():
 
 
 func _get_handle_size(dir: String) -> Vector2:
-	var thickness = 40.0
+	var thickness = 20.0
 	match dir:
 		"north", "south":
 			return Vector2(tile_size.x * 0.8, thickness)
@@ -643,8 +643,8 @@ func _resize_tile_from_mouse(handle: Area2D):
 	# apply
 	tile_size = new_size
 	collishape.shape.size = tile_size
-	button.custom_minimum_size = tile_size
-
+	update_button_size()
+	
 	# restore anchor
 	var new_anchor_local = _get_anchor_local(dir)
 	var new_anchor_global = to_global(new_anchor_local)
@@ -680,7 +680,7 @@ func _resize_tile(handle: Area2D):
 	# apply size
 	tile_size = new_size
 	collishape.shape.size = tile_size
-	button.custom_minimum_size = tile_size
+	update_button_size()
 
 	# restore anchor position
 	var new_anchor_local = _get_anchor_local(dir)
@@ -722,7 +722,7 @@ func _snap_resize(other_segment_length, dir):
 	# apply new size
 	tile_size = new_size
 	collishape.shape.set("size", tile_size)
-	button.custom_minimum_size = tile_size
+	update_button_size()
 	update_resize_handles()
 	update_triangles()	
 	
@@ -735,6 +735,13 @@ func is_approximately_equal(num1, num2):
 	var diff = abs(num1 - num2)
 	var allowed = max(relative_tolerance * max(abs(num1), abs(num2)), absolute_tolerance)
 	return diff <= allowed
+
+func update_button_size():
+	var margin = 20.0
+	var btn_size = tile_size - Vector2(margin * 2, margin * 2)
+	button.custom_minimum_size = btn_size
+	button.size = btn_size
+	button.position = -btn_size / 2
 
 func _on_button_mouse_entered() -> void:
 	tile_hover = true

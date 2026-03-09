@@ -46,7 +46,7 @@ func _on_play_puzzle_selected(index):
 	match index:
 		1: load_puzzle(load("res://puzzles/puzzle_2026-03-06T20-30-39.tres"))
 		2: load_puzzle(load("res://puzzles/puzzle_2026-03-06T20-35-58.tres"))
-		3: load_puzzle(generated_puzzle)
+		3: load_puzzle(load("res://puzzles/ambiguous_puzzle_medium.tres"))
 	
 	var board := get_node("/root/Main/PuzzleBoard")
 	board.show_board()
@@ -69,7 +69,16 @@ func _generate_with_difficulty(level):
 		"medium": generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(7,7),  Vector2(100,100), 4, 5, 3)
 		"hard":   generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(10,10), Vector2(70,70),  3, 5, 2)
 	
-	load_puzzle(generated_puzzle) 
+	var ui = get_node_or_null("PlayUI")
+	if ui:
+		ui.queue_free()
+	
+	load_puzzle(generated_puzzle)
+	
+	var board := get_node("/root/Main/PuzzleBoard")
+	board.show_board()
+	
+	_show_puzzle_controls()
 
 func author_mode():
 	if has_node("AuthorUI"):
@@ -124,29 +133,36 @@ func load_puzzle(puzzle: PuzzleData, solved: bool = false):
 	current_puzzle = puzzle
 	
 	var board = get_node("/root/Main/PuzzleBoard")
-	
 	board_size = puzzle.board_size
 	board_colours = puzzle.board_colours
 	board.update_board_size(board_size)
 	board.update_side_colours(board_colours)
 	
-	var seen := {}
-	
-	if solved:
+	if not solved:
+		# calculate tile count first, then update tray before spawning
+		var seen := {}
+		var tiles_to_spawn := []
+		for tile_data in puzzle.tiles:
+			var sig = _side_colours_signature(tile_data.side_colours)
+			if only_unique and seen.has(sig):
+				continue
+			seen[sig] = true
+			tiles_to_spawn.append(tile_data)
+		
+		var tile_height := current_puzzle.unit_size.y if current_puzzle.unit_size != Vector2.ZERO else 100.0
+		var tile_width := current_puzzle.unit_size.x if current_puzzle.unit_size != Vector2.ZERO else 100.0
+		var padding := 20.0
+		var viewport_width := get_viewport().get_visible_rect().size.x
+		var columns := int((viewport_width - padding) / (tile_width + padding))
+		columns = max(columns, 1)
+		var row_count = ceil(tiles_to_spawn.size() / float(columns))
+		board.update_tray_height(tile_height, row_count)
+		
+		for tile_data in tiles_to_spawn:
+			spawn_tile(tile_data, true)
+	else:
 		for tile_data in puzzle.tiles:
 			spawn_tile(tile_data, false)
-	else:
-		if only_unique:
-			for tile_data in puzzle.tiles:
-				var sig = _side_colours_signature(tile_data.side_colours)
-				if seen.has(sig):
-					continue
-				seen[sig] = true
-				spawn_tile(tile_data, true)
-		else:
-			for tile_data in puzzle.tiles:
-				spawn_tile(tile_data, true)
-
 
 func spawn_tile(data, randomise):
 	var tile = tile_scene.instantiate()
@@ -164,28 +180,29 @@ func spawn_tile(data, randomise):
 	else:
 		var puzzle_board := get_node("/root/Main/PuzzleBoard")
 		var tray = puzzle_board.get_piece_tray_rect()
-
+		
 		var tile_size := Vector2(120, 120)
 		var padding := Vector2(20, 20)
-
-		# How many tiles already spawned into the tray
-		var index := tiles.size()
-
+		
+		var index := tiles.size() - 1
+		
 		var columns := int((tray.size.x - padding.x) / (tile_size.x + padding.x))
 		columns = max(columns, 1)
-
+		
 		var col := index % columns
 		var row := index / columns
-
+		
 		var pos := Vector2(
 			tray.position.x + padding.x + col * (tile_size.x + padding.x) + tile_size.x / 2,
 			tray.position.y + padding.y + row * (tile_size.y + padding.y) + tile_size.y / 2
 		)
+		
+		var unit_size = current_puzzle.unit_size if current_puzzle.unit_size != Vector2.ZERO else Vector2(100, 100)
 
 		tile.init_tile(
 			data,
 			pos,
-			Vector2(120,120),
+			unit_size,
 			data.side_colours
 		)
 
