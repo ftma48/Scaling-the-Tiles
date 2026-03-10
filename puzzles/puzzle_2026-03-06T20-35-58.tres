@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="PuzzleData" load_steps=17 format=3]
+[gd_resource type="Resource" script_class="PuzzleData" load_steps=17 format=3 uid="uid://cxqxktl7r28me"]
 
-[ext_resource type="Script" path="res://resources/puzzle_data.gd" id="1_wcsdf"]
-[ext_resource type="Script" path="res://resources/tile_info.gd" id="2_66yhc"]
+[ext_resource type="Script" uid="uid://brov7btd28fhx" path="res://resources/puzzle_data.gd" id="1_wcsdf"]
+[ext_resource type="Script" uid="uid://bg757kpgld2mw" path="res://resources/tile_info.gd" id="2_66yhc"]
 
 [sub_resource type="Resource" id="Resource_skhmc"]
 script = ExtResource("2_66yhc")
@@ -161,6 +161,7 @@ side_colours = {
 script = ExtResource("1_wcsdf")
 puzzle_name = "2026-03-06T20-35-58"
 tiles = [SubResource("Resource_skhmc"), SubResource("Resource_0bx51"), SubResource("Resource_228sq"), SubResource("Resource_0lqbb"), SubResource("Resource_hklcq"), SubResource("Resource_6enfr"), SubResource("Resource_xwsl3"), SubResource("Resource_uvj5r"), SubResource("Resource_5qgis"), SubResource("Resource_s1xp1"), SubResource("Resource_yc8lm"), SubResource("Resource_o2at4"), SubResource("Resource_0wdvo"), SubResource("Resource_c8xbk")]
+unit_size = Vector2(100, 100)
 board_size = Vector2(900, 600)
 board_colours = {
 "east": ["red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red", "red"],
