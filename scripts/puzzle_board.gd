@@ -92,17 +92,20 @@ func _draw_coloured_edges():
 			)
 			
 			var r := Rect2(centered_start, size)
-			draw_rect(r, colour)
+			draw_rect(r, ColourPalette.get_colour(colour))
 			start += step
 			centered_start += step
+
+func get_board_origin() -> Vector2:
+	return global_position - board_size / 2
 
 func _create_edge_segments():
 	if edge_segments_container:
 		edge_segments_container.queue_free()
 		
 	edge_segments_container = Node2D.new()
-	edge_segments_container.name = "EdgeSegments"
 	add_child(edge_segments_container)
+	edge_segments_container.name = "EdgeSegments"
 	
 	var half := board_size / 2
 

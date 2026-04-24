@@ -26,10 +26,15 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Reset Puzzle"
 
-[node name="DuplicateButton" type="Button" parent="Control/VBoxContainer"]
+[node name="DuplicateTileButton" type="Button" parent="Control/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Duplicate"
+text = "Duplicate Tile"
+
+[node name="DuplicateGroupButton" type="Button" parent="Control/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Duplicate Group"
 
 [node name="DeleteButton" type="Button" parent="Control/VBoxContainer"]
 unique_name_in_owner = true

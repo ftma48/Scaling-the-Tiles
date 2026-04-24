@@ -1,0 +1,438 @@
+[gd_scene load_steps=11 format=3 uid="uid://dc2152drvntkf"]
+
+[ext_resource type="Script" uid="uid://ceyu7ktu5p8fn" path="res://ui/settings_menu.gd" id="1_7nnky"]
+[ext_resource type="FontFile" uid="uid://c5eiy37bft8ds" path="res://images/Fredoka-VariableFont_wdth,wght.ttf" id="2_rd3qm"]
+[ext_resource type="ButtonGroup" uid="uid://lebc1p47t25g" path="res://resources/colour_button_group.tres" id="3_rd3qm"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_7nnky"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(1100, 600, 1)
+direction = Vector3(0, -1, 0)
+initial_velocity_min = 5.0
+initial_velocity_max = 20.0
+gravity = Vector3(0, -30, 0)
+scale_min = 5.0
+scale_max = 11.0
+color = Color(0.133333, 0.2, 0.439216, 0.705882)
+hue_variation_min = -2.23517e-08
+hue_variation_max = 0.2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rd3qm"]
+bg_color = Color(1, 1, 1, 0.0588235)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+expand_margin_left = 20.0
+expand_margin_top = 20.0
+expand_margin_right = 20.0
+expand_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7nnky"]
+bg_color = Color(1, 1, 1, 0.0980392)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_n5l55"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6xtrn"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1j15u"]
+bg_color = Color(1, 1, 1, 0.0980392)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+expand_margin_left = 8.0
+expand_margin_top = 4.0
+expand_margin_right = 8.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7lsre"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.878431, 0.878431, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+expand_margin_left = 16.0
+expand_margin_top = 4.0
+expand_margin_right = 16.0
+expand_margin_bottom = 4.0
+
+[node name="CanvasLayer" type="CanvasLayer"]
+script = ExtResource("1_7nnky")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.101961, 0.101961, 0.180392, 1)
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="Control"]
+position = Vector2(960, 528)
+amount = 150
+process_material = SubResource("ParticleProcessMaterial_7nnky")
+
+[node name="PanelContainer" type="PanelContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 150.0
+offset_right = 420.0
+offset_bottom = 296.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rd3qm")
+
+[node name="Label" type="Label" parent="Control/PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_rd3qm")
+theme_override_font_sizes/font_size = 120
+text = "Settings"
+
+[node name="CenterContainer" type="CenterContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 336.0
+offset_bottom = -368.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer"]
+layout_mode = 2
+theme_override_constants/separation = 70
+
+[node name="Label" type="Label" parent="Control/CenterContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_rd3qm")
+theme_override_font_sizes/font_size = 64
+text = "Colour Palette"
+
+[node name="PaletteOptions" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="DefaultPalette" type="PanelContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 5
+
+[node name="Palette" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/MarginContainer"]
+layout_mode = 2
+
+[node name="Colours" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/MarginContainer/Palette"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -1
+
+[node name="ColorRect" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(1, 0.419608, 0.419608, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(1, 0.85098, 0.239216, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.419608, 0.796078, 0.466667, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.301961, 0.588235, 1, 1)
+
+[node name="Label" type="Label" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/MarginContainer/Palette"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Default"
+
+[node name="DefaultPaletteButton" type="Button" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxFlat_7nnky")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_n5l55")
+theme_override_styles/normal = SubResource("StyleBoxFlat_6xtrn")
+toggle_mode = true
+button_group = ExtResource("3_rd3qm")
+
+[node name="ProPalette" type="PanelContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 5
+
+[node name="Palette" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/MarginContainer"]
+layout_mode = 2
+
+[node name="Colours" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/MarginContainer/Palette"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -1
+
+[node name="ColorRect" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(1, 0.498039, 0.313726, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(1, 0.878431, 0.4, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.176471, 0.698039, 0.490196, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.121569, 0.466667, 0.815686, 1)
+
+[node name="Label" type="Label" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/MarginContainer/Palette"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Protanopia"
+
+[node name="ProPaletteButton" type="Button" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxFlat_7nnky")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_n5l55")
+theme_override_styles/normal = SubResource("StyleBoxFlat_6xtrn")
+toggle_mode = true
+button_group = ExtResource("3_rd3qm")
+
+[node name="DeuPalette" type="PanelContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 5
+
+[node name="Palette" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/MarginContainer"]
+layout_mode = 2
+
+[node name="Colours" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/MarginContainer/Palette"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -1
+
+[node name="ColorRect" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.835294, 0.368627, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.941176, 0.894118, 0.258824, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0, 0.619608, 0.45098, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0, 0.447059, 0.698039, 1)
+
+[node name="Label" type="Label" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/MarginContainer/Palette"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Deuteranopia"
+
+[node name="DeuPaletteButton" type="Button" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxFlat_7nnky")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_n5l55")
+theme_override_styles/normal = SubResource("StyleBoxFlat_6xtrn")
+toggle_mode = true
+button_group = ExtResource("3_rd3qm")
+
+[node name="TriPalette" type="PanelContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 5
+
+[node name="Palette" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/MarginContainer"]
+layout_mode = 2
+
+[node name="Colours" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/MarginContainer/Palette"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -1
+
+[node name="ColorRect" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.894118, 0.341176, 0.180392, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.952941, 0.654902, 0.0705882, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.34902, 0.764706, 0.764706, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.231373, 0.298039, 0.752941, 1)
+
+[node name="Label" type="Label" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/MarginContainer/Palette"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Tritanopia"
+
+[node name="TriPaletteButton" type="Button" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxFlat_7nnky")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_n5l55")
+theme_override_styles/normal = SubResource("StyleBoxFlat_6xtrn")
+toggle_mode = true
+button_group = ExtResource("3_rd3qm")
+
+[node name="ContrastPalette" type="PanelContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions"]
+self_modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 5
+
+[node name="Palette" type="VBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/MarginContainer"]
+layout_mode = 2
+
+[node name="Colours" type="HBoxContainer" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/MarginContainer/Palette"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = -1
+
+[node name="ColorRect" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.843137, 0.14902, 0.239216, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.956863, 0.827451, 0.368627, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.180392, 0.768627, 0.713726, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/MarginContainer/Palette/Colours"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+color = Color(0.227451, 0.52549, 1, 1)
+
+[node name="Label" type="Label" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/MarginContainer/Palette"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "High Contrast"
+
+[node name="ContrastPaletteButton" type="Button" parent="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_styles/hover = SubResource("StyleBoxFlat_7nnky")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_n5l55")
+theme_override_styles/normal = SubResource("StyleBoxFlat_6xtrn")
+toggle_mode = true
+button_group = ExtResource("3_rd3qm")
+
+[node name="CenterContainer2" type="CenterContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -230.0
+offset_bottom = -154.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="BackButton" type="Button" parent="Control/CenterContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_rd3qm")
+theme_override_font_sizes/font_size = 60
+theme_override_styles/hover = SubResource("StyleBoxFlat_1j15u")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_7lsre")
+theme_override_styles/normal = SubResource("StyleBoxFlat_7lsre")
+text = "Back"
+
+[connection signal="pressed" from="Control/CenterContainer/VBoxContainer/PaletteOptions/DefaultPalette/DefaultPaletteButton" to="." method="_on_default_palette_button_pressed"]
+[connection signal="pressed" from="Control/CenterContainer/VBoxContainer/PaletteOptions/ProPalette/ProPaletteButton" to="." method="_on_pro_palette_button_pressed"]
+[connection signal="pressed" from="Control/CenterContainer/VBoxContainer/PaletteOptions/DeuPalette/DeuPaletteButton" to="." method="_on_deu_palette_button_pressed"]
+[connection signal="pressed" from="Control/CenterContainer/VBoxContainer/PaletteOptions/TriPalette/TriPaletteButton" to="." method="_on_tri_palette_button_pressed"]
+[connection signal="pressed" from="Control/CenterContainer/VBoxContainer/PaletteOptions/ContrastPalette/ContrastPaletteButton" to="." method="_on_contrast_palette_button_pressed"]

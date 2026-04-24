@@ -2,6 +2,9 @@ extends Node2D
 
 var tiles: Array = []
 
+func _process(_delta: float) -> void:
+	_clamp_to_screen()
+
 func add_tile(tile: Area2D):
 	if tile not in tiles:
 		print("Adding tile:", tile) 
@@ -72,3 +75,20 @@ func get_global_bounds() -> Rect2:
 		max = max.max(global_p + half)
 	
 	return Rect2(min, max - min)
+
+
+func _clamp_to_screen():
+	if tiles.is_empty():
+		return
+	
+	var screen := get_viewport().get_visible_rect()
+	var bounds := get_global_bounds()
+	
+	if bounds.position.x < screen.position.x:
+		global_position.x += screen.position.x - bounds.position.x
+	if bounds.position.y < screen.position.y:
+		global_position.y += screen.position.y - bounds.position.y
+	if bounds.end.x > screen.end.x:
+		global_position.x -= bounds.end.x - screen.end.x
+	if bounds.end.y > screen.end.y:
+		global_position.y -= bounds.end.y - screen.end.y

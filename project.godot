@@ -18,6 +18,7 @@ config/icon="res://images/icon.svg"
 [autoload]
 
 G="*res://scripts/g.gd"
+ColourPalette="*res://globals/ColourPalette.gd"
 
 [display]
 

@@ -10,7 +10,7 @@ class_name PuzzleGenerator
 @export var min_tile_size := Vector2i(1, 1)
 @export var max_depth := 4
 @export var split_stop_chance := 0.25
-@export var motif_period := 3  # tune per difficulty
+@export var motif_period := 3 
 @export var max_segments_per_side = 3
 
 var colours := []
@@ -20,7 +20,8 @@ var rng := RandomNumberGenerator.new()
 var vertical_boundaries := []
 var horizontal_boundaries := []
 
-func generate_puzzle(unit_grid: Vector2i, unit_world: Vector2, colour_num: int, depth: int, motif: int):
+func generate_puzzle(unit_grid: Vector2i, unit_world: Vector2, colour_num: int, depth: int, motif: int, max_segs: int = 3):
+	max_segments_per_side = max_segs
 	motif_period = motif
 	unit_grid_size = unit_grid
 	unit_world_size = unit_world
@@ -41,7 +42,7 @@ func generate_puzzle(unit_grid: Vector2i, unit_world: Vector2, colour_num: int, 
 	
 	var id = Time.get_datetime_string_from_system().replace(":", "-").replace(" ", "_")
 	var puzzle = build_puzzle_data()
-	ResourceSaver.save(puzzle, "res://puzzles/generated_puzzle_%s.tres" % id)
+	ResourceSaver.save(puzzle, "user://generated_puzzle_%s.tres" % id)
 	return puzzle
 
 func _init_rng():
@@ -159,7 +160,12 @@ func _should_stop(region: Rect2i, depth: int) -> bool:
 		return true
 	
 	if depth > 1:
-		return rng.randf() < split_stop_chance 
+		# return rng.randf() < split_stop_chance 
+		var area = region.size.x * region.size.y
+		var max_area = unit_grid_size.x * unit_grid_size.y
+		var size_ratio = float(area) / float(max_area)
+		# large regions are unlikely to stop, small regions are likely to stop
+		return rng.randf() < split_stop_chance * (1.0 - size_ratio)
 	
 	return false
 
@@ -261,10 +267,7 @@ func _build_tile_from_region(region: Rect2i) -> TileInfo:
 	
 	tile.tile_size = Vector2(region.size) * unit_world_size
 	
-	var board_size := Vector2(unit_grid_size) * unit_world_size
-	var board_top_left := solution_origin - board_size * 0.5
-	
-	var tile_top_left := board_top_left + Vector2(region.position) * unit_world_size
+	var tile_top_left := Vector2(region.position) * unit_world_size
 	tile.start_position = tile_top_left + tile.tile_size * 0.5
 	
 	tile.side_colours = {

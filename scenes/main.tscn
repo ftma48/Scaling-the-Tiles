@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cnms3fb0kmg37"]
+[gd_scene load_steps=7 format=3 uid="uid://cnms3fb0kmg37"]
 
 [ext_resource type="Script" uid="uid://0li0ahmjpmy2" path="res://scripts/main.gd" id="1_o5qli"]
 [ext_resource type="Script" uid="uid://c1vjflaf25yvu" path="res://scripts/puzzle_manager.gd" id="2_0wfyh"]
@@ -6,8 +6,6 @@
 [ext_resource type="Script" uid="uid://n836j7u8d70r" path="res://scripts/puzzle_generator.gd" id="3_tipki"]
 [ext_resource type="AudioStream" uid="uid://by5uododxgklv" path="res://resources/connect.wav" id="4_jyhfs"]
 [ext_resource type="AudioStream" uid="uid://b1ddxp24fyyxg" path="res://resources/disconnect.wav" id="5_tbgi4"]
-[ext_resource type="Script" uid="uid://sbpi3yfdcc40" path="res://scripts/ui_manager.gd" id="6_o6xl0"]
-[ext_resource type="Script" uid="uid://bgly1biqmg5si" path="res://scripts/start_ui.gd" id="7_tipki"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_o5qli")
@@ -29,9 +27,3 @@ stream = ExtResource("4_jyhfs")
 
 [node name="disconnectSfx" type="AudioStreamPlayer" parent="." groups=["disconnect_sfx"]]
 stream = ExtResource("5_tbgi4")
-
-[node name="UIManager" type="Node" parent="."]
-script = ExtResource("6_o6xl0")
-
-[node name="StartUI" type="CanvasLayer" parent="UIManager"]
-script = ExtResource("7_tipki")

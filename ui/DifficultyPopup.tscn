@@ -1,23 +1,51 @@
-[gd_scene load_steps=2 format=3 uid="uid://cekwciche3mld"]
+[gd_scene load_steps=6 format=3 uid="uid://cekwciche3mld"]
 
 [ext_resource type="Script" uid="uid://c5dmc3qky0g4t" path="res://ui/difficulty_popup.gd" id="1_f4sfk"]
+[ext_resource type="FontFile" uid="uid://c5eiy37bft8ds" path="res://images/Fredoka-VariableFont_wdth,wght.ttf" id="2_nap36"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nap36"]
+bg_color = Color(0.141176, 0.141176, 0.266667, 1)
+corner_radius_top_left = 15
+corner_radius_top_right = 15
+corner_radius_bottom_right = 15
+corner_radius_bottom_left = 15
+shadow_color = Color(0, 0, 0, 0.470588)
+shadow_size = 50
+shadow_offset = Vector2(10, 10)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rtd8i"]
+bg_color = Color(1, 1, 1, 0.0980392)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+expand_margin_left = 8.0
+expand_margin_top = 4.0
+expand_margin_right = 8.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_h8tfr"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.878431, 0.878431, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+expand_margin_left = 16.0
+expand_margin_top = 4.0
+expand_margin_right = 16.0
+expand_margin_bottom = 4.0
 
 [node name="DifficultyPopup" type="CanvasLayer"]
 script = ExtResource("1_f4sfk")
-
-[node name="ColorRect" type="ColorRect" parent="."]
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -80.0
-offset_top = -92.0
-offset_right = 80.0
-offset_bottom = 100.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.18359, 0.18359, 0.18359, 1)
 
 [node name="Panel" type="Panel" parent="."]
 anchors_preset = 8
@@ -25,33 +53,83 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -276.5
+offset_right = 260.0
+offset_bottom = 276.5
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_nap36")
+
+[node name="Label" type="Label" parent="Panel"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 16.0
+offset_right = 169.0
+offset_bottom = 77.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 64
+text = "Select Difficulty"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -128.0
+offset_top = -124.0
+offset_right = 120.0
+offset_bottom = 160.0
 grow_horizontal = 2
 grow_vertical = 2
-
-[node name="Label" type="Label" parent="Panel/VBoxContainer"]
-layout_mode = 2
-text = "Select Difficulty"
+theme_override_constants/separation = 20
 
 [node name="Easy" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 5
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("2_nap36")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/hover = SubResource("StyleBoxFlat_rtd8i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_h8tfr")
+theme_override_styles/normal = SubResource("StyleBoxFlat_h8tfr")
 text = "Easy"
 
 [node name="Medium" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 5
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("2_nap36")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/hover = SubResource("StyleBoxFlat_rtd8i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_h8tfr")
+theme_override_styles/normal = SubResource("StyleBoxFlat_h8tfr")
 text = "Medium"
 
 [node name="Hard" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 5
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("2_nap36")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/hover = SubResource("StyleBoxFlat_rtd8i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_h8tfr")
+theme_override_styles/normal = SubResource("StyleBoxFlat_h8tfr")
 text = "Hard"
 
 [node name="Cancel" type="Button" parent="Panel/VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 5
+size_flags_vertical = 4
+theme_override_fonts/font = ExtResource("2_nap36")
+theme_override_font_sizes/font_size = 64
+theme_override_styles/hover = SubResource("StyleBoxFlat_rtd8i")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_h8tfr")
+theme_override_styles/normal = SubResource("StyleBoxFlat_h8tfr")
 text = "Cancel"

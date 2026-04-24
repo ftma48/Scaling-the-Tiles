@@ -15,6 +15,7 @@ var tiles := []
 var selected_tile: Node2D
 
 var duplicate_button
+var duplicate_group_button
 var delete_button
 
 var only_unique = true
@@ -22,6 +23,7 @@ var board_size
 var board_colours
 var generated_puzzle
 signal request_main_menu
+signal puzzle_solved
 
 func play_mode():
 	if has_node("PlayUI"):
@@ -67,7 +69,7 @@ func _generate_with_difficulty(level):
 	match level:
 		"easy":   generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(5,5),  Vector2(130,130), 4, 3, 4)
 		"medium": generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(7,7),  Vector2(100,100), 4, 5, 3)
-		"hard":   generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(10,10), Vector2(70,70),  3, 5, 2)
+		"hard": generated_puzzle = puzzle_generator.generate_puzzle(Vector2i(10,10), Vector2(70,70), 5, 7, 3, 2)
 	
 	var ui = get_node_or_null("PlayUI")
 	if ui:
@@ -120,10 +122,12 @@ func _show_puzzle_controls():
 	controls.solve.connect(_on_solve_puzzle_pressed)
 	controls.reset.connect(_on_reset_pressed)
 	controls.duplicate.connect(_on_duplicate_pressed)
+	controls.duplicategroup.connect(_on_duplicate_group_pressed)
 	controls.delete.connect(_on_delete_pressed)
 	controls.back.connect(_on_back_pressed)
 	
 	duplicate_button = controls.duplicate_button
+	duplicate_group_button = controls.duplicate_group_button
 	delete_button = controls.delete_button
 	
 	_update_selection_ui()
@@ -170,10 +174,12 @@ func spawn_tile(data, randomise):
 	tiles.append(tile)
 	
 	if not randomise:
-		print("spawning tile, not randomising position")
+		var puzzle_board = get_node("/root/Main/PuzzleBoard")
+		var board_origin = puzzle_board.get_board_origin()
+
 		tile.init_tile(
 			data,
-			data.start_position,
+			board_origin + data.start_position,
 			data.tile_size,
 			data.side_colours
 		)
@@ -236,6 +242,10 @@ func _update_selection_ui():
 	
 	if delete_button:
 		delete_button.disabled = disabled
+	
+	if duplicate_group_button:
+		var in_group = selected_tile != null and selected_tile.get_parent().is_in_group("tile_group")
+		duplicate_group_button.disabled = not in_group
 
 func _unhandled_input(event):
 	if event is InputEventMouseButton \
@@ -246,7 +256,9 @@ func _unhandled_input(event):
 			set_selected_tile(null)
 
 func duplicate_tile(data):
-	spawn_tile(data, false)
+	var copy = data.duplicate(true)
+	copy.start_position += Vector2(40, 40)
+	spawn_tile(copy, false)
 
 func duplicate_tilegroup(group: Node2D):
 	var new_group := preload("res://scenes/tile_group.tscn").instantiate()
@@ -268,6 +280,8 @@ func duplicate_tilegroup(group: Node2D):
 			data.side_colours.duplicate(true)
 		)
 		new_group.add_tile(new_tile)
+		tiles.append(new_tile)
+	set_selected_tile(null)
 
 func clear_puzzle():
 	for t in tiles:
@@ -278,13 +292,17 @@ func export_current_puzzle(name: String) -> PuzzleData:
 	var puzzle = PuzzleData.new()
 	puzzle.puzzle_name = name
 	puzzle.tiles = []
-	
 	puzzle.board_size = board_size
 	puzzle.board_colours = board_colours
 	
-	for tile in tiles:
-		puzzle.tiles.append(tile.to_tile_data())
+	var board := get_node("/root/Main/PuzzleBoard")
+	var board_origin = board.get_board_origin()
 	
+	for tile in tiles:
+		var data = tile.to_tile_data()
+		data.start_position = data.start_position - board_origin  # make relative
+		puzzle.tiles.append(data)
+		
 	return puzzle
 
 func clear():
@@ -487,6 +505,12 @@ func _on_duplicate_pressed():
 	else:
 		print("No tile selected to duplicate.")
 
+func _on_duplicate_group_pressed():
+	if selected_tile and selected_tile.get_parent().is_in_group("tile_group"):
+		duplicate_tilegroup(selected_tile.get_parent())
+	else:
+		print("No grouped tile selected.")
+
 func _on_delete_pressed():
 	if selected_tile:
 		selected_tile.delete_tile()
@@ -507,5 +531,51 @@ func remove_tile_from_puzzle(tile_to_remove: Node2D):
 	tiles.erase(tile_to_remove)
 	print("Tile removed from puzzle!")
 
-func check_win_condition():
-	pass
+func check_win_condition() -> bool:
+	var board := get_node("/root/Main/PuzzleBoard")
+	if board == null or board.edge_segments_container == null:
+		return false
+	
+	var board_segments = board.edge_segments_container.get_children()
+	if board_segments.is_empty():
+		return false
+	
+	for board_seg in board_segments:
+		if not board_seg is Area2D:
+			continue
+		
+		var b_dir = board_seg.get_meta("direction")
+		var b_colour = board_seg.get_meta("colour")
+		var b_len = board_seg.get_meta("seg_length")
+		var b_pos = board_seg.global_position
+		
+		var matched = false
+		
+		for tile in tiles:
+			if not tile.has_node("Triangles"):
+				continue
+			for seg_group in tile.get_node("Triangles").get_children():
+				for child in seg_group.get_children():
+					if not child is Area2D:
+						continue
+					if child.get_meta("direction") != b_dir:
+						continue
+					if child.get_meta("colour") != b_colour:
+						continue
+					if not tile.is_approximately_equal(child.get_meta("seg_length"), b_len):
+						continue
+					if child.global_position.distance_to(b_pos) > 20.0:
+						continue
+					matched = true
+					break
+				if matched:
+					break
+			if matched:
+				break
+		
+		if not matched:
+			return false
+	
+	print("PUZZLE SOLVED!")
+	emit_signal("puzzle_solved")
+	return true

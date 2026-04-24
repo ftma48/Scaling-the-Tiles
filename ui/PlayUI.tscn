@@ -1,6 +1,63 @@
-[gd_scene load_steps=2 format=3 uid="uid://05bm1awyteuk"]
+[gd_scene load_steps=7 format=3 uid="uid://05bm1awyteuk"]
 
 [ext_resource type="Script" uid="uid://6x5na37xfvnj" path="res://ui/play_ui.gd" id="1_mado1"]
+[ext_resource type="FontFile" uid="uid://c5eiy37bft8ds" path="res://images/Fredoka-VariableFont_wdth,wght.ttf" id="2_ilx0r"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_w8nt2"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(1100, 600, 1)
+direction = Vector3(0, -1, 0)
+initial_velocity_min = 5.0
+initial_velocity_max = 20.0
+gravity = Vector3(0, -30, 0)
+scale_min = 5.0
+scale_max = 11.0
+color = Color(0.133333, 0.2, 0.439216, 0.705882)
+hue_variation_min = -2.23517e-08
+hue_variation_max = 0.2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_avxb1"]
+bg_color = Color(1, 1, 1, 0.0588235)
+corner_radius_top_left = 40
+corner_radius_top_right = 40
+corner_radius_bottom_right = 40
+corner_radius_bottom_left = 40
+expand_margin_left = 20.0
+expand_margin_top = 20.0
+expand_margin_right = 20.0
+expand_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_truaa"]
+bg_color = Color(1, 1, 1, 0.0980392)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+expand_margin_left = 8.0
+expand_margin_top = 4.0
+expand_margin_right = 8.0
+expand_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ds5f6"]
+bg_color = Color(1, 1, 1, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.878431, 0.878431, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+expand_margin_left = 16.0
+expand_margin_top = 4.0
+expand_margin_right = 16.0
+expand_margin_bottom = 4.0
 
 [node name="PlayUI" type="CanvasLayer"]
 script = ExtResource("1_mado1")
@@ -13,7 +70,106 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="ColorRect" type="ColorRect" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.101961, 0.101961, 0.180392, 1)
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="Control"]
+position = Vector2(960, 528)
+amount = 150
+process_material = SubResource("ParticleProcessMaterial_w8nt2")
+
+[node name="PanelContainer" type="PanelContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -420.0
+offset_top = 150.0
+offset_right = 420.0
+offset_bottom = 296.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_avxb1")
+
+[node name="Label" type="Label" parent="Control/PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("2_ilx0r")
+theme_override_font_sizes/font_size = 120
+text = "Level Select"
+
+[node name="CenterContainer2" type="CenterContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 352.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer2"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="Puzzle1Button" type="Button" parent="Control/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ilx0r")
+theme_override_font_sizes/font_size = 60
+theme_override_styles/hover = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ds5f6")
+theme_override_styles/normal = SubResource("StyleBoxFlat_ds5f6")
+text = "Puzzle 1"
+
+[node name="Puzzle2Button" type="Button" parent="Control/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ilx0r")
+theme_override_font_sizes/font_size = 60
+theme_override_styles/hover = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ds5f6")
+theme_override_styles/normal = SubResource("StyleBoxFlat_ds5f6")
+text = "Puzzle 2"
+
+[node name="Puzzle3Button" type="Button" parent="Control/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ilx0r")
+theme_override_font_sizes/font_size = 60
+theme_override_styles/hover = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ds5f6")
+theme_override_styles/normal = SubResource("StyleBoxFlat_ds5f6")
+text = "Puzzle 3"
+
+[node name="GenerateButton" type="Button" parent="Control/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ilx0r")
+theme_override_font_sizes/font_size = 60
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/hover = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/normal = SubResource("StyleBoxFlat_ds5f6")
+text = "Generate Puzzle"
+
+[node name="BackButton" type="Button" parent="Control/CenterContainer2/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_ilx0r")
+theme_override_font_sizes/font_size = 60
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/hover = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_truaa")
+theme_override_styles/normal = SubResource("StyleBoxFlat_ds5f6")
+text = "Back"
+
 [node name="CenterContainer" type="CenterContainer" parent="Control"]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -23,28 +179,3 @@ grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Control/CenterContainer"]
 layout_mode = 2
-
-[node name="Puzzle1Button" type="Button" parent="Control/CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Puzzle 1"
-
-[node name="Puzzle2Button" type="Button" parent="Control/CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Puzzle 2"
-
-[node name="Puzzle3Button" type="Button" parent="Control/CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Puzzle 3"
-
-[node name="GenerateButton" type="Button" parent="Control/CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Generate New Puzzle"
-
-[node name="BackButton" type="Button" parent="Control/CenterContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-text = "Back"
